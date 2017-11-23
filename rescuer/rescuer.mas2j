@@ -1,0 +1,12 @@
+MAS rescuer {
+
+	infrastructure: Centralised
+
+	environment: RescuerEnv
+
+	agents:
+		agent1 sample_agent;
+
+	aslSourcePath:
+		"src/asl";
+}
