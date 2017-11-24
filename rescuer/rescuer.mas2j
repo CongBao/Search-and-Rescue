@@ -5,7 +5,8 @@ MAS rescuer {
 	environment: RescuerEnv
 
 	agents:
-		agent1 sample_agent;
+		scout;
+		doctor;
 
 	aslSourcePath:
 		"src/asl";

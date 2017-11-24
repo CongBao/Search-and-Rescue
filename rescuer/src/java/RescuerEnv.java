@@ -1,32 +1,40 @@
-// Environment code for project rescuer
 
-import jason.asSyntax.*;
-import jason.environment.*;
-import java.util.logging.*;
+/**
+ * Environment code for project rescuer
+ */
+
+import java.util.logging.Logger;
+
+import jason.asSyntax.Structure;
+import jason.environment.Environment;
 
 public class RescuerEnv extends Environment {
 
-    private Logger logger = Logger.getLogger("rescuer."+RescuerEnv.class.getName());
+	private Logger logger = Logger.getLogger("rescuer." + RescuerEnv.class.getName());
 
-    /** Called before the MAS execution with the args informed in .mas2j */
-    @Override
-    public void init(String[] args) {
-        super.init(args);
-        addPercept(ASSyntax.parseLiteral("percept(demo)"));
-    }
+	private ArenaModel model;
+	private ArenaView view;
 
-    @Override
-    public boolean executeAction(String agName, Structure action) {
-        logger.info("executing: "+action+", but not implemented!");
-        if (true) { // you may improve this condition
-             informAgsEnvironmentChanged();
-        }
-        return true; // the action was executed with success
-    }
+	@Override
+	public void init(String[] args) {
+		super.init(args);
+		model = new ArenaModel();
+		view = new ArenaView(model);
+		model.setView(view);
+	}
 
-    /** Called before the end of MAS execution */
-    @Override
-    public void stop() {
-        super.stop();
-    }
+	@Override
+	public void stop() {
+		super.stop();
+	}
+
+	@Override
+	public boolean executeAction(String agName, Structure action) {
+		logger.info("Agent: " + agName + ", Action: " + action);
+		if (true) {
+			informAgsEnvironmentChanged();
+		}
+		return true;
+	}
+
 }
