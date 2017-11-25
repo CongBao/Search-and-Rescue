@@ -1,8 +1,8 @@
-MAS rescuer {
+MAS rescuing {
 
 	infrastructure: Centralised
 
-	environment: RescuerEnv
+	environment: RescueEnv
 
 	agents:
 		scout;

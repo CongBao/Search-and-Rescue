@@ -1,4 +1,5 @@
 import jason.environment.grid.GridWorldModel;
+import jason.environment.grid.Location;
 
 public class ArenaModel extends GridWorldModel {
 
@@ -32,6 +33,21 @@ public class ArenaModel extends GridWorldModel {
 		add(VIC_CRI, 2, 5);
 		add(VIC_SER, 5, 2);
 		add(VIC_MIN, 1, 3);
+	}
+
+	public void travelTo(Location loc) {
+		Location now = getAgPos(SCOUT);
+		if (now.x < loc.x) {
+			now.x++;
+		} else if (now.x > loc.x) {
+			now.x--;
+		}
+		if (now.y < loc.y) {
+			now.y++;
+		} else if (now.y > loc.y) {
+			now.y--;
+		}
+		setAgPos(SCOUT, now);
 	}
 
 }
