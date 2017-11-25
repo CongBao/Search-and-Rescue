@@ -4,13 +4,13 @@
 
 /* Initial goals */
 
-!check_pos.
+!localize.
 
 /* Plans */
 
-+!check_pos : true 
-            <- check;
-               !pos(_, _).
++!localize : true 
+           <- localize;
+              !pos(_, _).
 
 +!pos(X, Y) : pos(X, Y) 
             <- .print("My position is: (", X, ",", Y, ")");

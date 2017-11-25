@@ -40,7 +40,7 @@ public class RescueEnv extends Environment {
 	@Override
 	public boolean executeAction(String agName, Structure action) {
 		logger.info("Agent: " + agName + ", Action: " + action);
-		if (action.getFunctor().equals("check")) {
+		if (action.getFunctor().equals("localize")) {
 			// TODO find where is the robot
 			int x = 1, y = 1; // example
 			NumberTerm X = ASSyntax.createNumber(x);
@@ -48,17 +48,16 @@ public class RescueEnv extends Environment {
 			addPercept("scout", ASSyntax.createLiteral("pos", X, Y));
 			model.setAgPos(ArenaModel.SCOUT, x, y);
 		} else if (action.getFunctor().equals("find_path")) {
-			// TODO find a path with minimal total cost
-			List<Location> path = new AStar(model).findPath(new Location(1, 1), new Location(1, 5)); // example
-			List<Term> pathPos = new ArrayList<>();
-			for (Location loc : path) {
+			List<Location> optimalPath = model.findOptimalPath();
+			List<Term> path = new ArrayList<>();
+			for (Location loc : optimalPath) {
 				NumberTerm x = ASSyntax.createNumber(loc.x);
 				NumberTerm y = ASSyntax.createNumber(loc.y);
 				Literal l = ASSyntax.createLiteral("pos", x, y);
-				pathPos.add(l);
+				path.add(l);
 			}
-			ListTerm lt = ASSyntax.createList(pathPos);
-			addPercept(ASSyntax.createLiteral("path", lt));
+			ListTerm lt = ASSyntax.createList(path);
+			addPercept(ASSyntax.createLiteral("total_path", lt));
 		} else if (action.getFunctor().equals("travel")) {
 			// TODO travel to the given cell
 			try {
