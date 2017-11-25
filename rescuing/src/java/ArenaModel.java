@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -21,32 +20,37 @@ public class ArenaModel extends GridWorldModel {
 	public static final int VIC_SER = 0x20;
 	public static final int VIC_MIN = 0x40;
 
-	private List<Location> possibleVictims;
+	List<Location> possibleVictims;
 
 	public ArenaModel() {
 		super(WIDTH, HEIGHT, 2);
 		// position of agent
-		setAgPos(SCOUT, 1, 1);
+		// setAgPos(SCOUT, 1, 1);
 		// walls
 		addWall(0, 0, WIDTH - 1, 0);
 		addWall(0, 0, 0, HEIGHT - 1);
 		addWall(0, HEIGHT - 1, WIDTH - 1, HEIGHT - 1);
 		addWall(WIDTH - 1, 0, WIDTH - 1, HEIGHT - 1);
 		// obstacles
-		add(OBSTACLE, 2, 4);
+		add(OBSTACLE, 1, 4);
 		add(OBSTACLE, 3, 3);
 		add(OBSTACLE, 4, 4);
 		add(OBSTACLE, 4, 5);
 		// possible victims
-		possibleVictims = new ArrayList<>(5);
+		possibleVictims = new LinkedList<>();
 		possibleVictims.add(new Location(2, 2));
 		possibleVictims.add(new Location(3, 4));
 		possibleVictims.add(new Location(2, 5));
 		possibleVictims.add(new Location(5, 2));
-		possibleVictims.add(new Location(1, 3));
+		possibleVictims.add(new Location(5, 3));
 		for (Location loc : possibleVictims) {
 			add(VIC_POS, loc);
 		}
+	}
+
+	public Location localize() {
+		// TODO localize robot
+		return new Location(1, 1);
 	}
 
 	public List<Location> findOptimalPath() {
@@ -92,6 +96,14 @@ public class ArenaModel extends GridWorldModel {
 			now.y--;
 		}
 		setAgPos(SCOUT, now);
+	}
+
+	public void checkAndRescue(Location loc) {
+		// TODO add more function
+		if (hasObject(VIC_POS, loc)) {
+			remove(VIC_POS, loc);
+			System.out.println("A victim is rescued.");
+		}
 	}
 
 }

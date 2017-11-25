@@ -22,3 +22,7 @@
                               travel(X, Y);
                               +pos(X, Y);
                               !pos(X, Y).
+                              
++!check(X, Y)[source(doctor)] : pos(X, Y)
+                              <- .print("Checking position: (", X, ",", Y, ")");
+                                 check_vic(X, Y).

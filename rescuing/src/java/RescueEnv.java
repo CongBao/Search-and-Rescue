@@ -3,7 +3,7 @@
  * Environment code for project rescuer
  */
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -19,6 +19,9 @@ import jason.environment.grid.Location;
 
 public class RescueEnv extends Environment {
 
+	public static final String DOCTOR = "doctor";
+	public static final String SCOUT = "scout";
+
 	private Logger logger = Logger.getLogger("rescuing." + RescueEnv.class.getName());
 
 	private ArenaModel model;
@@ -30,6 +33,19 @@ public class RescueEnv extends Environment {
 		model = new ArenaModel();
 		view = new ArenaView(model);
 		model.setView(view);
+		initVictims();
+	}
+
+	public void initVictims() {
+		List<Term> possibleVic = new LinkedList<>();
+		for (Location loc : model.possibleVictims) {
+			NumberTerm x = ASSyntax.createNumber(loc.x);
+			NumberTerm y = ASSyntax.createNumber(loc.y);
+			Literal l = ASSyntax.createLiteral("pos", x, y);
+			possibleVic.add(l);
+		}
+		ListTerm lt = ASSyntax.createList(possibleVic);
+		addPercept(DOCTOR, ASSyntax.createLiteral("vic_pos", lt));
 	}
 
 	@Override
@@ -42,14 +58,14 @@ public class RescueEnv extends Environment {
 		logger.info("Agent: " + agName + ", Action: " + action);
 		if (action.getFunctor().equals("localize")) {
 			// TODO find where is the robot
-			int x = 1, y = 1; // example
-			NumberTerm X = ASSyntax.createNumber(x);
-			NumberTerm Y = ASSyntax.createNumber(y);
-			addPercept("scout", ASSyntax.createLiteral("pos", X, Y));
-			model.setAgPos(ArenaModel.SCOUT, x, y);
+			Location loc = model.localize();
+			NumberTerm x = ASSyntax.createNumber(loc.x);
+			NumberTerm y = ASSyntax.createNumber(loc.y);
+			addPercept(SCOUT, ASSyntax.createLiteral("pos", x, y));
+			model.setAgPos(ArenaModel.SCOUT, loc);
 		} else if (action.getFunctor().equals("find_path")) {
 			List<Location> optimalPath = model.findOptimalPath();
-			List<Term> path = new ArrayList<>();
+			List<Term> path = new LinkedList<>();
 			for (Location loc : optimalPath) {
 				NumberTerm x = ASSyntax.createNumber(loc.x);
 				NumberTerm y = ASSyntax.createNumber(loc.y);
@@ -64,6 +80,15 @@ public class RescueEnv extends Environment {
 				int x = (int) ((NumberTerm) action.getTerm(0)).solve();
 				int y = (int) ((NumberTerm) action.getTerm(1)).solve();
 				model.travelTo(new Location(x, y));
+			} catch (NoValueException e) {
+				e.printStackTrace();
+			}
+		} else if (action.getFunctor().equals("check_vic")) {
+			// TODO check the cell and rescue the victim if there is
+			try {
+				int x = (int) ((NumberTerm) action.getTerm(0)).solve();
+				int y = (int) ((NumberTerm) action.getTerm(1)).solve();
+				model.checkAndRescue(new Location(x, y));
 			} catch (NoValueException e) {
 				e.printStackTrace();
 			}
