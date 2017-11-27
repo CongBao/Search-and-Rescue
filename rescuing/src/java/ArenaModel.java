@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -9,6 +10,8 @@ import jason.environment.grid.GridWorldModel;
 import jason.environment.grid.Location;
 
 public class ArenaModel extends GridWorldModel {
+
+	private Emulator emulator = new Emulator(this); // emulate the robot
 
 	public static final int WIDTH = 6 + 2;
 	public static final int HEIGHT = 7 + 2;
@@ -48,9 +51,26 @@ public class ArenaModel extends GridWorldModel {
 		}
 	}
 
-	public Location localize() {
-		// TODO localize robot
-		return new Location(1, 1);
+	public Map<Location, List<int[]>> localize(Map<Location, List<int[]>> remain) {
+		Map<Location, List<int[]>> possible = new HashMap<>();
+		boolean[] obsData = emulator.detectObstacle();
+		int vicData = emulator.detectVictim();
+		for (Location pos : remain.keySet()) {
+			List<int[]> posDir = new LinkedList<>();
+			for (int[] dir : remain.get(pos)) {
+				boolean[] real = new boolean[3];
+				real[0] = !isFreeOfObstacle(pos.x + dir[1], pos.y - dir[0]);
+				real[1] = !isFreeOfObstacle(pos.x - dir[1], pos.y + dir[0]);
+				real[2] = !isFreeOfObstacle(pos.x + dir[0], pos.y + dir[1]);
+				if (Arrays.equals(obsData, real) && data[pos.x][pos.y] == vicData) {
+					posDir.add(dir);
+				}
+			}
+			if (posDir.size() > 0) {
+				possible.put(pos, posDir);
+			}
+		}
+		return possible;
 	}
 
 	public List<Location> findOptimalPath() {

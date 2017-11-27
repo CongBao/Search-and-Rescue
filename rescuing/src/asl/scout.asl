@@ -4,9 +4,17 @@
 
 /* Initial goals */
 
-!localize.
+!detect.
 
 /* Plans */
+
++!detect : true
+         <- detect;
+            !data(_, _, _, _).
+            
++!data(L, R, F, V) : data(L, R, F, V)
+                   <- .print("Obstacles: [", L, ",", R, ",", F, "]; Victim: ", V);
+                      .send(doctor, tell, data(L, R, F, V)).
 
 +!localize : true 
            <- localize;

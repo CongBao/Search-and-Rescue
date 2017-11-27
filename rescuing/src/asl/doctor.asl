@@ -2,6 +2,8 @@
 
 /* Initial beliefs and rules */
 
+// vic_pos([pos(), ...])
+// remain([pair(pos(), dir()), ...])
 path([]).
 
 /* Initial goals */
@@ -10,8 +12,16 @@ path([]).
 
 /* Plans */
 
-+!start : true 
-        <- .print("Waiting for scout to determine location.").
++!start : true
+        <- .print("Waiting for scout to send data.");
+           ?remain(R);  // debug
+           localize(R). // debug
+        
++data(L, R, F, V)[source(scout)] : remain(R) & not .empty(R)
+                                 <- .length(R, Len);
+                                    .print("There are ", Len, " possible status(es) left.");
+                                    .abolish(remain(_));
+                                    localize(R).
 
 // once scout reports its new position, and the path is not empty,
 // let scout check if there is victim to rescue and then go to next cell
@@ -34,7 +44,7 @@ path([]).
 
 // after the scout find its location, find an optimal total path
 +pos(X, Y)[source(scout)] : path(P) & .empty(P)
-                          <- .print("I now know Scout is located in (", X, ",", Y, ")");
+                          <- .print("Now I know Scout is located in (", X, ",", Y, ")");
                              .abolish(pos(_, _));
                              find_path.
 

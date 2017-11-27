@@ -209,6 +209,7 @@ public class AStar {
 
 	}
 
+	/* test method
 	public static void main(String[] args) {
 		GridWorldModel model = new ArenaModel();
 		List<Location> result = new AStar(model).findPath(new Location(1, 1), new Location(3, 4));
@@ -217,5 +218,6 @@ public class AStar {
 			System.out.println("[" + cell + "]");
 		}
 	}
+	 */
 
 }
