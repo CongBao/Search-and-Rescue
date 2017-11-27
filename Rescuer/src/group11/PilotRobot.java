@@ -15,7 +15,7 @@ import lejos.robotics.navigation.MovePilot;
 public class PilotRobot {
 
 	private EV3TouchSensor leftBump, rightBump;
-	private EV3UltrasonicSensor usSensor; // unsure
+	private EV3UltrasonicSensor usSensor;
 	private EV3ColorSensor cSensor;
 	private SampleProvider leftSP, rightSP, distSP, colourSP;
 	private float[] leftSample, rightSample, distSample, colourSample;
