@@ -10,8 +10,8 @@ import jason.environment.grid.Location;
 
 public class ArenaModel extends GridWorldModel {
 
-	public static final int WIDTH = 5 + 2;
-	public static final int HEIGHT = 6 + 2;
+	public static final int WIDTH = 6 + 2;
+	public static final int HEIGHT = 7 + 2;
 
 	public static final int SCOUT = 0;
 

@@ -24,7 +24,7 @@ public class Pattern {
 	}
 
 	public void moveTo(char dir) {
-
+		// TODO
 	}
 
 	private class Node {

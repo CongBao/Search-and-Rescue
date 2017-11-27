@@ -4,8 +4,8 @@ public interface Model {
 
 	double ARENA_WIDTH = 150;
 	double ARENA_DEPTH = 190;
-	int WIDTH = 5;
-	int DEPTH = 6;
+	int WIDTH = 6;
+	int DEPTH = 7;
 	double UNIT_WIDTH = ARENA_WIDTH / WIDTH;
 	double UNIT_DEPTH = ARENA_DEPTH / DEPTH;
 
