@@ -9,16 +9,19 @@
 /* Plans */
 
 +!detect : true
-         <- detect;
+         <- detect; // -> +data(L, R, F, V)
             !data(_, _, _, _).
             
 +!data(L, R, F, V) : data(L, R, F, V)
                    <- .print("Obstacles: [", L, ",", R, ",", F, "]; Victim: ", V);
-                      .send(doctor, tell, data(L, R, F, V)).
-
-+!localize : true 
-           <- localize;
-              !pos(_, _).
+                      .send(doctor, tell, data(L, R, F, V));
+                      .abolish(data(_, _, _, _)).
+               
++!explore(S, M)[source(doctor)] : .list(M)
+                                <- .print("I will try to explore my ", S, " cell.");
+                                   move(S, M);
+                                   .wait(500);
+                                   !detect.
 
 +!pos(X, Y) : pos(X, Y) 
             <- .print("My position is: (", X, ",", Y, ")");

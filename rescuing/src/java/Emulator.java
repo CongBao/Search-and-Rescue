@@ -17,8 +17,6 @@ public class Emulator {
 	public Emulator(ArenaModel model) {
 		this.model = model;
 		initRobot();
-		System.out.println("Pos: [" + pos[0] + "," + pos[1] + "]");
-		System.out.println("Dir: [" + dir[0] + "," + dir[1] + "]");
 	}
 
 	public void initRobot() {
@@ -72,22 +70,37 @@ public class Emulator {
 		}
 	}
 
-	public void moveTo(Location loc) {
-		int[] to = new int[] { loc.x - pos[0], loc.y - pos[1] };
-		int sin = dir[0] * to[1] - dir[1] * to[0];
-		switch (sin) {
-		case -1:
+	public void moveTo(char side) {
+		switch (side) {
+		case 'L':
 			dir = new int[] { dir[1], -dir[0] };
 			break;
-		case 1:
+		case 'R':
 			dir = new int[] { -dir[1], dir[0] };
 			break;
-		case 0:
+		case 'F':
 			break;
 		default:
 			break;
 		}
 		pos = new int[] { pos[0] + dir[0], pos[1] + dir[1] };
+	}
+
+	public void moveTo(Location loc) {
+		int[] to = new int[] { loc.x - pos[0], loc.y - pos[1] };
+		int sin = dir[0] * to[1] - dir[1] * to[0];
+		switch (sin) {
+		case -1: moveTo('L'); break;
+		case 1: moveTo('R'); break;
+		case 0: moveTo('F'); break;
+		default: break;
+		}
+	}
+
+	public void printRealInfo() {
+		System.out.print("[Emulator robot real info] ");
+		System.out.print("Pos: (" + pos[0] + ", " + pos[1] + "), ");
+		System.out.println("Dir: (" + dir[0] + ", " + dir[1] + ")");
 	}
 
 }

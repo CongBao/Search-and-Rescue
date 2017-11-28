@@ -16,10 +16,13 @@ import jason.asSyntax.Literal;
 import jason.asSyntax.NumberTerm;
 import jason.asSyntax.Structure;
 import jason.asSyntax.Term;
+import jason.asSyntax.parser.ParseException;
 import jason.environment.Environment;
 import jason.environment.grid.Location;
 
 public class RescueEnv extends Environment {
+
+	private Emulator emulator; // for emulating
 
 	public static final String DOCTOR = "doctor";
 	public static final String SCOUT = "scout";
@@ -37,6 +40,9 @@ public class RescueEnv extends Environment {
 		model.setView(view);
 		initVictims();
 		initRemain();
+
+		emulator = new Emulator(model); // TODO change to real robot
+		emulator.printRealInfo();
 	}
 
 	public void initVictims() {
@@ -88,64 +94,22 @@ public class RescueEnv extends Environment {
 
 	@Override
 	public boolean executeAction(String agName, Structure action) {
-		logger.info("Agent: " + agName + ", Action: " + action);
-		if (action.getFunctor().equals("localize")) {
-			Map<Location, List<int[]>> remain = new HashMap<>();
-			List<Term> pairs = (ListTerm) action.getTerm(0);
-			for (Term pair : pairs) {
-				Literal l = (Literal) pair;
-				Literal pos = (Literal) l.getTerm(0);
-				Literal dir = (Literal) l.getTerm(1);
-				int x = 0, y = 0, d1 = 0, d2 = 0;
-				try {
-					x = (int) ((NumberTerm) pos.getTerm(0)).solve();
-					y = (int) ((NumberTerm) pos.getTerm(1)).solve();
-					d1 = (int) ((NumberTerm) dir.getTerm(0)).solve();
-					d2 = (int) ((NumberTerm) dir.getTerm(1)).solve();
-				} catch (NoValueException e) {
-					e.printStackTrace();
-				}
-				Location loc = new Location(x, y);
-				remain.putIfAbsent(loc, new LinkedList<>());
-				remain.get(loc).add(new int[] { d1, d2 });
+		logger.info("Agent: " + agName + ", Action: " + action.getFunctor());
+		try {
+			switch (action.getFunctor()) {
+			// actions of doctor
+			case "localize": localize(action); break;
+			case "find_path": findPath(action); break;
+			// actions of scout
+			case "detect": detect(action); break;
+			case "move": move(action); break;
+			case "travel": travel(action); break;
+			case "check_vic": checkVic(action); break;
+			default: break;
 			}
-			System.out.println(remain.size());
-			remain = model.localize(remain);
-			System.out.println(remain.size());
-			/*Location loc = new Location(1, 2);
-			NumberTerm x = ASSyntax.createNumber(loc.x);
-			NumberTerm y = ASSyntax.createNumber(loc.y);
-			addPercept(SCOUT, ASSyntax.createLiteral("pos", x, y));
-			model.setAgPos(ArenaModel.SCOUT, loc);*/
-		} else if (action.getFunctor().equals("find_path")) {
-			List<Location> optimalPath = model.findOptimalPath();
-			List<Term> path = new LinkedList<>();
-			for (Location loc : optimalPath) {
-				NumberTerm x = ASSyntax.createNumber(loc.x);
-				NumberTerm y = ASSyntax.createNumber(loc.y);
-				Literal l = ASSyntax.createLiteral("pos", x, y);
-				path.add(l);
-			}
-			ListTerm lt = ASSyntax.createList(path);
-			addPercept(ASSyntax.createLiteral("total_path", lt));
-		} else if (action.getFunctor().equals("travel")) {
-			// TODO travel to the given cell
-			try {
-				int x = (int) ((NumberTerm) action.getTerm(0)).solve();
-				int y = (int) ((NumberTerm) action.getTerm(1)).solve();
-				model.travelTo(new Location(x, y));
-			} catch (NoValueException e) {
-				e.printStackTrace();
-			}
-		} else if (action.getFunctor().equals("check_vic")) {
-			// TODO check the cell and rescue the victim if there is
-			try {
-				int x = (int) ((NumberTerm) action.getTerm(0)).solve();
-				int y = (int) ((NumberTerm) action.getTerm(1)).solve();
-				model.checkAndRescue(new Location(x, y));
-			} catch (NoValueException e) {
-				e.printStackTrace();
-			}
+		} catch (NoValueException nve) {
+			nve.printStackTrace();
+			return false;
 		}
 		try {
 			Thread.sleep(500);
@@ -153,6 +117,115 @@ public class RescueEnv extends Environment {
 		}
 		informAgsEnvironmentChanged();
 		return true;
+	}
+
+	private Map<Location, List<int[]>> getRemain(List<Term> pairs) throws NoValueException {
+		System.out.println("Get remain size: " + pairs.size());
+		Map<Location, List<int[]>> remain = new HashMap<>();
+		for (Term pair : pairs) {
+			Literal l = (Literal) pair;
+			Literal pos = (Literal) l.getTerm(0);
+			Literal dir = (Literal) l.getTerm(1);
+			int	x = (int) ((NumberTerm) pos.getTerm(0)).solve();
+			int	y = (int) ((NumberTerm) pos.getTerm(1)).solve();
+			int	d1 = (int) ((NumberTerm) dir.getTerm(0)).solve();
+			int	d2 = (int) ((NumberTerm) dir.getTerm(1)).solve();
+			Location loc = new Location(x, y);
+			remain.putIfAbsent(loc, new LinkedList<>());
+			remain.get(loc).add(new int[] { d1, d2 });
+		}
+		return remain;
+	}
+
+	private void putRemain(Map<Location, List<int[]>> remain) {
+		List<Term> pairs = new LinkedList<>();
+		for (Location pos : remain.keySet()) {
+			NumberTerm x = ASSyntax.createNumber(pos.x);
+			NumberTerm y = ASSyntax.createNumber(pos.y);
+			Literal posL = ASSyntax.createLiteral("pos", x, y);
+			for (int[] dir : remain.get(pos)) {
+				NumberTerm d1 = ASSyntax.createNumber(dir[0]);
+				NumberTerm d2 = ASSyntax.createNumber(dir[1]);
+				Literal dirL = ASSyntax.createLiteral("dir", d1, d2);
+				Literal pair = ASSyntax.createLiteral("pair", posL, dirL);
+				pairs.add(pair);
+			}
+		}
+		System.out.println("Put remain size: " + pairs.size());
+		ListTerm lt = ASSyntax.createList(pairs);
+		addPercept(DOCTOR, ASSyntax.createLiteral("remain", lt));
+	}
+
+	private void localize(Structure action) throws NoValueException {
+		Map<Location, List<int[]>> remain = getRemain((ListTerm) action.getTerm(4));
+		boolean[] obsData = new boolean[3];
+		for (int i = 0; i < 3; i++) {
+			obsData[i] = 1 == (int) ((NumberTerm) action.getTerm(i)).solve();
+		}
+		int vicData = (int) ((NumberTerm) action.getTerm(3)).solve();
+		remain = model.localize(remain, obsData, vicData);
+		putRemain(remain);
+	}
+
+	private void findPath(Structure action) {
+		List<Location> optimalPath = model.findOptimalPath();
+		List<Term> path = new LinkedList<>();
+		for (Location loc : optimalPath) {
+			NumberTerm x = ASSyntax.createNumber(loc.x);
+			NumberTerm y = ASSyntax.createNumber(loc.y);
+			Literal l = ASSyntax.createLiteral("pos", x, y);
+			path.add(l);
+		}
+		ListTerm lt = ASSyntax.createList(path);
+		addPercept(ASSyntax.createLiteral("total_path", lt));
+	}
+
+	private void detect(Structure action) {
+		boolean[] obsData = emulator.detectObstacle();
+		int vicData = emulator.detectVictim();
+		NumberTerm l = ASSyntax.createNumber(obsData[0] ? 1 : 0);
+		NumberTerm r = ASSyntax.createNumber(obsData[1] ? 1 : 0);
+		NumberTerm f = ASSyntax.createNumber(obsData[2] ? 1 : 0);
+		NumberTerm v = ASSyntax.createNumber(vicData);
+		addPercept(SCOUT, ASSyntax.createLiteral("data", l, r, f, v));
+	}
+
+	private void move(Structure action) throws NoValueException {
+		Term left = null, right = null, front = null;
+		try {
+			left = ASSyntax.parseTerm("left");
+			right = ASSyntax.parseTerm("right");
+			front = ASSyntax.parseTerm("front");
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		char side = 0;
+		if (action.getTerm(0).equals(left)) {
+			side = 'L';
+		} else if (action.getTerm(0).equals(right)) {
+			side = 'R';
+		} else if (action.getTerm(0).equals(front)) {
+			side = 'F';
+		}
+		emulator.moveTo(side);
+		emulator.printRealInfo();
+		Map<Location, List<int[]>> remain = getRemain((ListTerm) action.getTerm(1));
+		remain = model.updateRemain(remain, side);
+		putRemain(remain);
+	}
+
+	private void travel(Structure action) throws NoValueException {
+		// TODO travel to the given cell
+		int x = (int) ((NumberTerm) action.getTerm(0)).solve();
+		int y = (int) ((NumberTerm) action.getTerm(1)).solve();
+		model.travelTo(new Location(x, y));
+	}
+
+	private void checkVic(Structure action) throws NoValueException {
+		// TODO check the cell and rescue the victim if there is
+		int x = (int) ((NumberTerm) action.getTerm(0)).solve();
+		int y = (int) ((NumberTerm) action.getTerm(1)).solve();
+		model.checkAndRescue(new Location(x, y));
 	}
 
 }

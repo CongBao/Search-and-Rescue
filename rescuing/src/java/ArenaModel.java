@@ -11,8 +11,6 @@ import jason.environment.grid.Location;
 
 public class ArenaModel extends GridWorldModel {
 
-	private Emulator emulator = new Emulator(this); // emulate the robot
-
 	public static final int WIDTH = 6 + 2;
 	public static final int HEIGHT = 7 + 2;
 
@@ -35,26 +33,29 @@ public class ArenaModel extends GridWorldModel {
 		addWall(0, HEIGHT - 1, WIDTH - 1, HEIGHT - 1);
 		addWall(WIDTH - 1, 0, WIDTH - 1, HEIGHT - 1);
 		// obstacles
-		add(OBSTACLE, 1, 4);
+		add(OBSTACLE, 1, 6);
+		add(OBSTACLE, 2, 3);
+		add(OBSTACLE, 2, 4);
 		add(OBSTACLE, 3, 3);
 		add(OBSTACLE, 4, 4);
 		add(OBSTACLE, 4, 5);
+		add(OBSTACLE, 4, 7);
+		add(OBSTACLE, 5, 2);
+		add(OBSTACLE, 6, 4);
 		// possible victims
 		possibleVictims = new LinkedList<>();
-		possibleVictims.add(new Location(2, 2));
-		possibleVictims.add(new Location(3, 4));
+		possibleVictims.add(new Location(1, 2));
 		possibleVictims.add(new Location(2, 5));
-		possibleVictims.add(new Location(5, 2));
-		possibleVictims.add(new Location(5, 3));
+		possibleVictims.add(new Location(3, 4));
+		possibleVictims.add(new Location(4, 3));
+		possibleVictims.add(new Location(5, 5));
 		for (Location loc : possibleVictims) {
 			add(VIC_POS, loc);
 		}
 	}
 
-	public Map<Location, List<int[]>> localize(Map<Location, List<int[]>> remain) {
+	public Map<Location, List<int[]>> localize(Map<Location, List<int[]>> remain, boolean[] obsData, int vicData) {
 		Map<Location, List<int[]>> possible = new HashMap<>();
-		boolean[] obsData = emulator.detectObstacle();
-		int vicData = emulator.detectVictim();
 		for (Location pos : remain.keySet()) {
 			List<int[]> posDir = new LinkedList<>();
 			for (int[] dir : remain.get(pos)) {
@@ -71,6 +72,32 @@ public class ArenaModel extends GridWorldModel {
 			}
 		}
 		return possible;
+	}
+
+	public Map<Location, List<int[]>> updateRemain(Map<Location, List<int[]>> remain, char side) {
+		Map<Location, List<int[]>> updated = new HashMap<>();
+		for (Location pos : remain.keySet()) {
+			for (int[] dir : remain.get(pos)) {
+				int[] turned = null;
+				switch (side) {
+				case 'L':
+					turned = new int[] { dir[1], -dir[0] };
+					break;
+				case 'R':
+					turned = new int[] { -dir[1], dir[0] };
+					break;
+				case 'F':
+					turned = new int[] { dir[0], dir[1] };
+					break;
+				default:
+					break;
+				}
+				Location loc = new Location(pos.x + turned[0], pos.y + turned[1]);
+				updated.putIfAbsent(loc, new LinkedList<>());
+				updated.get(loc).add(turned);
+			}
+		}
+		return updated;
 	}
 
 	public List<Location> findOptimalPath() {
