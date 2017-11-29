@@ -44,3 +44,7 @@
 +!check(X, Y)[source(doctor)] : pos(X, Y)
                               <- .print("Checking position: (", X, ",", Y, ")");
                                  check_vic(X, Y).
+
++!rescue[source(doctor)] : true
+                         <- .print("I'll rescue this victim.");
+                            rescue. // TODO add parameter of victim value, and implement in java

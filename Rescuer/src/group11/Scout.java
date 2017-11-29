@@ -119,12 +119,23 @@ public class Scout {
 		return dis;
 	}
 
+	public void test() {
+		pilot.travel(50);
+		pilot.rotate(90);
+		pilot.travel(50);
+		pilot.rotate(90);
+		pilot.travel(50);
+		pilot.rotate(90);
+		pilot.travel(50);
+		pilot.rotate(90);
+	}
+
 	public static void main(String[] args) {
 		Scout scout = new Scout();
 		scout.lcd.drawString("Press any button to start", 0, 0, 0);
 		Button.waitForAnyPress();
 		scout.lcd.clear();
-		// TODO
+		scout.test();
 	}
 
 }

@@ -2,7 +2,7 @@
 
 /* Initial beliefs and rules */
 
-// vic_pos([pos(), ...])
+// vic_pos([pos(), ...]) // TODO change the format of vic_pos
 // remain([pair(pos(), dir()), ...])
 path([]).
 
@@ -14,13 +14,20 @@ path([]).
 
 +!start : true
         <- .print("Waiting for scout to send data.").
-        
+
 /* Localization */
 
 // Once scout send its detected data, use these data to reduce the number of possible cells we are located in
 +!data(L, R, F, V)[source(scout)] : remain(M) & .length(M, Len) & Len > 1
                                   <- .print("There are ", Len, " possible status(es) left.");
                                      -remain(_);
+                                     if (V > 0) {
+                                         .print("Please rescue the victim at your place.");
+                                         //.send(scout, achieve, rescue);
+                                         .wait(500);
+                                     } else {
+                                         // TODO if there's no victim in the possible place, just remove it
+                                     }; // TODO: add victim value in vic_pos
                                      localize(L, R, F, V, M); // -> +remain([...])
                                      .wait(500);
                                      ?remain(N);
@@ -51,7 +58,7 @@ path([]).
                              };
                          };
                          -remain(_).
-                         
+
 /* Path finding */
 
 // Once scout reports its new position, and the path is not empty,
@@ -63,7 +70,7 @@ path([]).
                                  .print("Please check if there is a victim.");
                                  .send(scout, achieve, check(X, Y));
                                  .wait(500);
-                                 ?vic_pos([_|R]);
+                                 .delete(pos(X, Y), V, R);
                                  -+vic_pos(R);
                              };
                              .abolish(pos(_, _));
@@ -73,15 +80,15 @@ path([]).
 
 // After the scout find its location, find an optimal total path
 +pos(X, Y)[source(percept)] : path(P) & .empty(P)
-                         <- .print("Now I know Scout is located in (", X, ",", Y, ")");
-                            .abolish(pos(_, _));
-                            find_path. // -> +total_path([...])
+                            <- .print("Now I know Scout is located in (", X, ",", Y, ")");
+                               .abolish(pos(_, _));
+                               find_path. // -> +total_path([...]) // TODO: add parameter of victim
 
 // After an optimal total path is found, let scout start moving
-+total_path(P)[source(_)] : not .empty(P)
-                          <- .print("An optimal path found.");
-                             -+path(P);
-                             !next(P).
++total_path(P)[source(percept)] : not .empty(P)
+                                <- .print("An optimal path found.");
+                                   -+path(P);
+                                   !next(P).
 
 // If the remaining path is empty, stop
 +!next(P) : .empty(P)

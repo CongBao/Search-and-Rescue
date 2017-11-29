@@ -9,10 +9,10 @@ public interface Model {
 	double UNIT_WIDTH = ARENA_WIDTH / WIDTH;
 	double UNIT_DEPTH = ARENA_DEPTH / DEPTH;
 
-	int[] NORTH = new int[] { 0, 1 };
-	int[] SOUTH = new int[] { 0, -1 };
-	int[] EAST = new int[] { 1, 0 };
+	int[] NORTH = new int[] { 0, -1 };
+	int[] SOUTH = new int[] { 0, 1 };
 	int[] WEST = new int[] { -1, 0 };
+	int[] EAST = new int[] { 1, 0 };
 
 	int[] UNKNOWN = new int[] { -1, -1 };
 
