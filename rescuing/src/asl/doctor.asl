@@ -15,22 +15,21 @@ path([]).
 +!start : true
         <- .print("Waiting for scout to send data.").
         
-+data(L, R, F, V)[source(scout)] : remain(M) & not .empty(M)
-                                 <- .length(M, Len);
-                                    .print("There are ", Len, " possible status(es) left.");
-                                    .abolish(remain(_));
-                                    localize(L, R, F, V, M); // -> +remain([...])
-                                    ?remain(N);
-                                    !explore(L, R, F, N).
++!data(L, R, F, V)[source(scout)] : remain(M) & .length(M, Len) & Len > 1
+                                  <- .print("There are ", Len, " possible status(es) left.");
+                                     -remain(_);
+                                     localize(L, R, F, V, M); // -> +remain([...])
+                                     .wait(500);
+                                     ?remain(N);
+                                     !explore(L, R, F, N).
                                     
 +!explore(_, _, _, M) : .length(M, Len) & Len == 1
                       <- .nth(0, M, pair(pos(X, Y), dir(D1, D2)));
                          .print("Pos: (", X, ",", Y, "), Dir: (", D1, ",", D2, ")");
-                         .abolish(data(_, _, _, _));
-                         .abolish(remain(_)).
-                         +pos(X, Y).
+                         -remain(_);
+                         determine(X, Y).
                                     
-+!explore(L, R, F, M) : not .empty(M)
++!explore(L, R, F, M) : .length(M, Len) & Len > 1
                       <- if (F == 0) {
                              .print("Please try to explore your front cell.");
                              .send(scout, achieve, explore(front, M));
@@ -45,8 +44,7 @@ path([]).
                                  };
                              };
                          };
-                         .abolish(data(_, _, _, _));
-                         .abolish(remain(_)).
+                         -remain(_).
 
 // once scout reports its new position, and the path is not empty,
 // let scout check if there is victim to rescue and then go to next cell
@@ -58,17 +56,15 @@ path([]).
                                  .send(scout, achieve, check(X, Y));
                                  .wait(500);
                                  ?vic_pos([_|R]);
-                                 .abolish(vic_pos(_));
-                                 +vic_pos(R);
+                                 -+vic_pos(R);
                              };
                              .abolish(pos(_, _));
                              ?path([_|L]);
-                             .abolish(path(_));
-                             +path(L);
+                             -+path(L);
                              !next(L).
 
 // after the scout find its location, find an optimal total path
-+pos(X, Y)[source(self)] : path(P) & .empty(P)
++pos(X, Y)[source(percept)] : path(P) & .empty(P)
                          <- .print("Now I know Scout is located in (", X, ",", Y, ")");
                             .abolish(pos(_, _));
                             find_path. // -> +total_path([...])
@@ -76,8 +72,7 @@ path([]).
 // after an optimal total path is found, let scout start moving
 +total_path(P)[source(_)] : not .empty(P)
                           <- .print("An optimal path found.");
-                             .abolish(path(_));
-                             +path(P);
+                             -+path(P);
                              !next(P).
 
 // if the remaining path is empty, stop

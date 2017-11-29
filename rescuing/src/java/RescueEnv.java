@@ -100,6 +100,7 @@ public class RescueEnv extends Environment {
 			// actions of doctor
 			case "localize": localize(action); break;
 			case "find_path": findPath(action); break;
+			case "determine": determine(action); break;
 			// actions of scout
 			case "detect": detect(action); break;
 			case "move": move(action); break;
@@ -177,7 +178,14 @@ public class RescueEnv extends Environment {
 			path.add(l);
 		}
 		ListTerm lt = ASSyntax.createList(path);
-		addPercept(ASSyntax.createLiteral("total_path", lt));
+		addPercept(DOCTOR, ASSyntax.createLiteral("total_path", lt));
+	}
+
+	private void determine(Structure action) throws NoValueException {
+		int x = (int) ((NumberTerm) action.getTerm(0)).solve();
+		int y = (int) ((NumberTerm) action.getTerm(1)).solve();
+		model.setAgPos(ArenaModel.SCOUT, x, y);
+		addPercept(DOCTOR, ASSyntax.createLiteral("pos", action.getTermsArray()));
 	}
 
 	private void detect(Structure action) {
@@ -188,6 +196,7 @@ public class RescueEnv extends Environment {
 		NumberTerm f = ASSyntax.createNumber(obsData[2] ? 1 : 0);
 		NumberTerm v = ASSyntax.createNumber(vicData);
 		addPercept(SCOUT, ASSyntax.createLiteral("data", l, r, f, v));
+		System.out.println(l + ", " + r + ", " + f + ", " + v);
 	}
 
 	private void move(Structure action) throws NoValueException {

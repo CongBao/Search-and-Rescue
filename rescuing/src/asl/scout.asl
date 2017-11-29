@@ -10,14 +10,14 @@
 
 +!detect : true
          <- detect; // -> +data(L, R, F, V)
-            !data(_, _, _, _).
+            !data.
             
-+!data(L, R, F, V) : data(L, R, F, V)
-                   <- .print("Obstacles: [", L, ",", R, ",", F, "]; Victim: ", V);
-                      .send(doctor, tell, data(L, R, F, V));
-                      .abolish(data(_, _, _, _)).
-               
-+!explore(S, M)[source(doctor)] : .list(M)
++!data : data(L, R, F, V)
+       <- .print("Obstacles: [", L, ",", R, ",", F, "]; Victim: ", V);
+          .send(doctor, achieve, data(L, R, F, V));
+          -data(_, _, _, _).
+
++!explore(S, M)[source(doctor)] : true
                                 <- .print("I will try to explore my ", S, " cell.");
                                    move(S, M);
                                    .wait(500);
@@ -29,9 +29,8 @@
 
 +!at(X, Y)[source(doctor)] : true 
                            <- .print("The next cell I will travel to: (", X, ",", Y, ")");
-                              .abolish(pos(_, _));
                               travel(X, Y);
-                              +pos(X, Y);
+                              -+pos(X, Y);
                               !pos(X, Y).
                
 +!check(X, Y)[source(doctor)] : pos(X, Y)
