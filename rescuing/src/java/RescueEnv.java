@@ -44,19 +44,6 @@ public class RescueEnv extends Environment {
 		emulator.printRealInfo();
 	}
 
-	public void initVictims() {
-		List<Term> possibleVic = new LinkedList<>();
-		for (Location loc : model.possibleVictims) {
-			NumberTerm x = ASSyntax.createNumber(loc.x);
-			NumberTerm y = ASSyntax.createNumber(loc.y);
-			NumberTerm v = ASSyntax.createNumber(model.getObject(loc));
-			Literal l = ASSyntax.createLiteral("status", x, y, v);
-			possibleVic.add(l);
-		}
-		ListTerm lt = ASSyntax.createList(possibleVic);
-		addPercept(DOCTOR, ASSyntax.createLiteral("vic_pos", lt));
-	}
-
 	public void initRemain() {
 		List<Literal> remainCell = new LinkedList<>();
 		for (int i = 0; i < model.getWidth(); i++) {
@@ -153,6 +140,19 @@ public class RescueEnv extends Environment {
 		addPercept(DOCTOR, ASSyntax.createLiteral("remain", lt));
 	}
 
+	private void putVictims() {
+		List<Term> possibleVic = new LinkedList<>();
+		for (Location loc : model.possibleVictims) {
+			NumberTerm x = ASSyntax.createNumber(loc.x);
+			NumberTerm y = ASSyntax.createNumber(loc.y);
+			NumberTerm v = ASSyntax.createNumber(model.getObject(loc));
+			Literal l = ASSyntax.createLiteral("status", x, y, v);
+			possibleVic.add(l);
+		}
+		ListTerm lt = ASSyntax.createList(possibleVic);
+		addPercept(DOCTOR, ASSyntax.createLiteral("vic_pos", lt));
+	}
+
 	private void localize(Structure action) throws NoValueException {
 		Map<Location, List<int[]>> remain = getRemain((ListTerm) action.getTerm(4));
 		boolean[] obsData = new boolean[3];
@@ -183,7 +183,7 @@ public class RescueEnv extends Environment {
 		int d1 = (int) ((NumberTerm) action.getTerm(2)).solve();
 		int d2 = (int) ((NumberTerm) action.getTerm(3)).solve();
 		model.removeCheckedVic(new int[] { x, y }, new int[] { d1, d2 });
-		initVictims();
+		putVictims();
 		model.setAgPos(ArenaModel.SCOUT, x, y);
 		addPercept(DOCTOR, ASSyntax.createLiteral("pos", action.getTerm(0), action.getTerm(1)));
 	}
@@ -230,7 +230,10 @@ public class RescueEnv extends Environment {
 		// TODO travel to the given cell
 		int x = (int) ((NumberTerm) action.getTerm(0)).solve();
 		int y = (int) ((NumberTerm) action.getTerm(1)).solve();
-		model.travelTo(new Location(x, y));
+		Location target = new Location(x, y);
+		model.travelTo(target);
+		emulator.moveTo(target); // TODO exist bug
+		emulator.printRealInfo();
 	}
 
 	private void checkVic(Structure action) throws NoValueException {

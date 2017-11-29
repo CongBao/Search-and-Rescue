@@ -22,13 +22,11 @@ public class ArenaModel extends GridWorldModel {
 	public static final int VIC_MIN = 0x40;
 
 	List<Location> possibleVictims;
-	//List<List<Character>> encounters;
+	// List<List<Character>> encounters;
 	List<Map<Integer, List<Character>>> encounters;
 
 	public ArenaModel() {
 		super(WIDTH, HEIGHT, 2);
-		// position of agent
-		// setAgPos(SCOUT, 1, 1);
 		// walls
 		addWall(0, 0, WIDTH - 1, 0);
 		addWall(0, 0, 0, HEIGHT - 1);
@@ -54,10 +52,26 @@ public class ArenaModel extends GridWorldModel {
 		encounters = new LinkedList<>();
 	}
 
+	/**
+	 * Get the object located at given cell.
+	 *
+	 * @param loc
+	 *            the {@link Location} of the cell
+	 * @return the value of this object
+	 */
 	public int getObject(Location loc) {
 		return getObject(loc.x, loc.y);
 	}
 
+	/**
+	 * Get the object located at given cell.
+	 *
+	 * @param x
+	 *            x-axis of this cell
+	 * @param y
+	 *            y-axis of this cell
+	 * @return the value of this object
+	 */
 	public int getObject(int x, int y) {
 		if (inGrid(x, y)) {
 			return data[x][y];
@@ -210,12 +224,26 @@ public class ArenaModel extends GridWorldModel {
 		}
 	}
 
+	/**
+	 * Check the given victim value, and record it for future use
+	 *
+	 * @param vic
+	 *            the value of the victim
+	 */
 	public void checkAndRescue(int vic) {
 		Map<Integer, List<Character>> record = new HashMap<>(1, 2);
 		record.put(vic, new LinkedList<>());
 		encounters.add(record);
 	}
 
+	/**
+	 * Remove victims found during localization from possible victim list
+	 *
+	 * @param pos
+	 *            the determined position
+	 * @param dir
+	 *            the determined direction
+	 */
 	public void removeCheckedVic(int[] pos, int[] dir) {
 		for (Map<Integer, List<Character>> record : encounters) {
 			int victim = record.keySet().iterator().next();
