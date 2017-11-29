@@ -22,6 +22,8 @@ public class ArenaModel extends GridWorldModel {
 	public static final int VIC_MIN = 0x40;
 
 	List<Location> possibleVictims;
+	//List<List<Character>> encounters;
+	List<Map<Integer, List<Character>>> encounters;
 
 	public ArenaModel() {
 		super(WIDTH, HEIGHT, 2);
@@ -33,14 +35,11 @@ public class ArenaModel extends GridWorldModel {
 		addWall(0, HEIGHT - 1, WIDTH - 1, HEIGHT - 1);
 		addWall(WIDTH - 1, 0, WIDTH - 1, HEIGHT - 1);
 		// obstacles
-		add(OBSTACLE, 1, 6);
-		add(OBSTACLE, 2, 3);
+		add(OBSTACLE, 2, 2);
 		add(OBSTACLE, 2, 4);
-		add(OBSTACLE, 3, 3);
-		add(OBSTACLE, 4, 4);
+		add(OBSTACLE, 2, 6);
+		add(OBSTACLE, 4, 2);
 		add(OBSTACLE, 4, 5);
-		add(OBSTACLE, 4, 7);
-		add(OBSTACLE, 5, 2);
 		add(OBSTACLE, 6, 4);
 		// possible victims
 		possibleVictims = new LinkedList<>();
@@ -52,6 +51,18 @@ public class ArenaModel extends GridWorldModel {
 		for (Location loc : possibleVictims) {
 			add(VIC_POS, loc);
 		}
+		encounters = new LinkedList<>();
+	}
+
+	public int getObject(Location loc) {
+		return getObject(loc.x, loc.y);
+	}
+
+	public int getObject(int x, int y) {
+		if (inGrid(x, y)) {
+			return data[x][y];
+		}
+		return -1;
 	}
 
 	/**
@@ -74,7 +85,7 @@ public class ArenaModel extends GridWorldModel {
 				real[0] = !isFreeOfObstacle(pos.x + dir[1], pos.y - dir[0]);
 				real[1] = !isFreeOfObstacle(pos.x - dir[1], pos.y + dir[0]);
 				real[2] = !isFreeOfObstacle(pos.x + dir[0], pos.y + dir[1]);
-				if (Arrays.equals(obsData, real) && data[pos.x][pos.y] == vicData) {
+				if (Arrays.equals(obsData, real) && getObject(pos) == vicData) {
 					posDir.add(dir);
 				}
 			}
@@ -196,6 +207,39 @@ public class ArenaModel extends GridWorldModel {
 		if (hasObject(VIC_POS, loc)) {
 			remove(VIC_POS, loc);
 			System.out.println("A victim is rescued.");
+		}
+	}
+
+	public void checkAndRescue(int vic) {
+		Map<Integer, List<Character>> record = new HashMap<>(1, 2);
+		record.put(vic, new LinkedList<>());
+		encounters.add(record);
+	}
+
+	public void removeCheckedVic(int[] pos, int[] dir) {
+		for (Map<Integer, List<Character>> record : encounters) {
+			int victim = record.keySet().iterator().next();
+			List<Character> steps = record.values().iterator().next();
+			Location nowPos = new Location(pos[0], pos[1]);
+			int[] nowDir = Arrays.copyOf(dir, dir.length);
+			Collections.reverse(steps);
+			for (char c : steps) {
+				nowPos = new Location(nowPos.x - nowDir[0], nowPos.y - nowDir[1]);
+				switch (c) {
+				case 'L':
+					nowDir = new int[] { -nowDir[1], nowDir[0] };
+					break;
+				case 'R':
+					nowDir = new int[] { nowDir[1], -nowDir[0] };
+					break;
+				case 'F':
+					break;
+				default:
+					break;
+				}
+			}
+			possibleVictims.remove(nowPos);
+			remove(victim, nowPos);
 		}
 	}
 

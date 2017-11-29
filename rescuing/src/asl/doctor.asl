@@ -2,8 +2,8 @@
 
 /* Initial beliefs and rules */
 
-// vic_pos([pos(), ...]) // TODO change the format of vic_pos
-// remain([pair(pos(), dir()), ...])
+// vic_pos([status(X, Y, V), ...])
+// remain([pair(pos(X, Y), dir(D1, D2)), ...])
 path([]).
 
 /* Initial goals */
@@ -20,14 +20,11 @@ path([]).
 // Once scout send its detected data, use these data to reduce the number of possible cells we are located in
 +!data(L, R, F, V)[source(scout)] : remain(M) & .length(M, Len) & Len > 1
                                   <- .print("There are ", Len, " possible status(es) left.");
-                                     -remain(_);
                                      if (V > 0) {
-                                         .print("Please rescue the victim at your place.");
-                                         //.send(scout, achieve, rescue);
+                                         .print("Please check the victim at your place.");
+                                         .send(scout, achieve, check(V));
                                          .wait(500);
-                                     } else {
-                                         // TODO if there's no victim in the possible place, just remove it
-                                     }; // TODO: add victim value in vic_pos
+                                     };
                                      localize(L, R, F, V, M); // -> +remain([...])
                                      .wait(500);
                                      ?remain(N);
@@ -37,8 +34,7 @@ path([]).
 +!explore(_, _, _, M) : .length(M, Len) & Len == 1
                       <- .nth(0, M, pair(pos(X, Y), dir(D1, D2)));
                          .print("Pos: (", X, ",", Y, "), Dir: (", D1, ",", D2, ")");
-                         -remain(_);
-                         determine(X, Y).
+                         determine(X, Y, D1, D2).
 
 // If there are more than one possible cells in list, choose one side in the priority of front > left > right,
 // and ask scout to explore further in this side
@@ -56,8 +52,7 @@ path([]).
                                      .send(scout, achieve, explore(right, M));
                                  };
                              };
-                         };
-                         -remain(_).
+                         }.
 
 /* Path finding */
 
@@ -66,11 +61,11 @@ path([]).
 +pos(X, Y)[source(scout)] : path(P) & not .empty(P)
                           <- .print("I know Scout is at (", X, ",", Y, ")");
                              ?vic_pos(V);
-                             if (.member(pos(X, Y), V)) {
+                             if (.member(status(X, Y, _), V)) {
                                  .print("Please check if there is a victim.");
                                  .send(scout, achieve, check(X, Y));
                                  .wait(500);
-                                 .delete(pos(X, Y), V, R);
+                                 .delete(status(X, Y, _), V, R);
                                  -+vic_pos(R);
                              };
                              .abolish(pos(_, _));
@@ -82,7 +77,7 @@ path([]).
 +pos(X, Y)[source(percept)] : path(P) & .empty(P)
                             <- .print("Now I know Scout is located in (", X, ",", Y, ")");
                                .abolish(pos(_, _));
-                               find_path. // -> +total_path([...]) // TODO: add parameter of victim
+                               find_path. // -> +total_path([...])
 
 // After an optimal total path is found, let scout start moving
 +total_path(P)[source(percept)] : not .empty(P)

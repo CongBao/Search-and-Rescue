@@ -16,8 +16,7 @@
 // After data of obstacles and victims are collected, send them to doctor
 +!data : data(L, R, F, V)
        <- .print("Obstacles: [", L, ",", R, ",", F, "]; Victim: ", V);
-          .send(doctor, achieve, data(L, R, F, V));
-          -data(_, _, _, _).
+          .send(doctor, achieve, data(L, R, F, V)).
 
 // Explore one side following doctor's instructions
 +!explore(S, M)[source(doctor)] : true
@@ -45,6 +44,6 @@
                               <- .print("Checking position: (", X, ",", Y, ")");
                                  check_vic(X, Y).
 
-+!rescue[source(doctor)] : true
-                         <- .print("I'll rescue this victim.");
-                            rescue. // TODO add parameter of victim value, and implement in java
++!check(V)[source(doctor)] : true
+                            <- .print("I'll check my place.");
+                               check_vic(V).

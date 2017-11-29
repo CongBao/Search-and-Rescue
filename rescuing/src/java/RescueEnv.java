@@ -38,7 +38,6 @@ public class RescueEnv extends Environment {
 		model = new ArenaModel();
 		view = new ArenaView(model);
 		model.setView(view);
-		initVictims();
 		initRemain();
 
 		emulator = new Emulator(model); // TODO change to real robot
@@ -50,7 +49,8 @@ public class RescueEnv extends Environment {
 		for (Location loc : model.possibleVictims) {
 			NumberTerm x = ASSyntax.createNumber(loc.x);
 			NumberTerm y = ASSyntax.createNumber(loc.y);
-			Literal l = ASSyntax.createLiteral("pos", x, y);
+			NumberTerm v = ASSyntax.createNumber(model.getObject(loc));
+			Literal l = ASSyntax.createLiteral("status", x, y, v);
 			possibleVic.add(l);
 		}
 		ListTerm lt = ASSyntax.createList(possibleVic);
@@ -88,11 +88,6 @@ public class RescueEnv extends Environment {
 	}
 
 	@Override
-	public void stop() {
-		super.stop();
-	}
-
-	@Override
 	public boolean executeAction(String agName, Structure action) {
 		logger.info("Agent: " + agName + ", Action: " + action.getFunctor());
 		try {
@@ -121,7 +116,8 @@ public class RescueEnv extends Environment {
 	}
 
 	private Map<Location, List<int[]>> getRemain(List<Term> pairs) throws NoValueException {
-		System.out.println("Get remain size: " + pairs.size());
+		removePerceptsByUnif(DOCTOR, Literal.parseLiteral("remain(_)"));
+		logger.info("Get remain size: " + pairs.size());
 		Map<Location, List<int[]>> remain = new HashMap<>();
 		for (Term pair : pairs) {
 			Literal l = (Literal) pair;
@@ -152,7 +148,7 @@ public class RescueEnv extends Environment {
 				pairs.add(pair);
 			}
 		}
-		System.out.println("Put remain size: " + pairs.size());
+		logger.info("Put remain size: " + pairs.size());
 		ListTerm lt = ASSyntax.createList(pairs);
 		addPercept(DOCTOR, ASSyntax.createLiteral("remain", lt));
 	}
@@ -184,8 +180,12 @@ public class RescueEnv extends Environment {
 	private void determine(Structure action) throws NoValueException {
 		int x = (int) ((NumberTerm) action.getTerm(0)).solve();
 		int y = (int) ((NumberTerm) action.getTerm(1)).solve();
+		int d1 = (int) ((NumberTerm) action.getTerm(2)).solve();
+		int d2 = (int) ((NumberTerm) action.getTerm(3)).solve();
+		model.removeCheckedVic(new int[] { x, y }, new int[] { d1, d2 });
+		initVictims();
 		model.setAgPos(ArenaModel.SCOUT, x, y);
-		addPercept(DOCTOR, ASSyntax.createLiteral("pos", action.getTermsArray()));
+		addPercept(DOCTOR, ASSyntax.createLiteral("pos", action.getTerm(0), action.getTerm(1)));
 	}
 
 	private void detect(Structure action) {
@@ -195,6 +195,7 @@ public class RescueEnv extends Environment {
 		NumberTerm r = ASSyntax.createNumber(obsData[1] ? 1 : 0);
 		NumberTerm f = ASSyntax.createNumber(obsData[2] ? 1 : 0);
 		NumberTerm v = ASSyntax.createNumber(vicData);
+		removePerceptsByUnif(SCOUT, Literal.parseLiteral("data(_, _, _, _)"));
 		addPercept(SCOUT, ASSyntax.createLiteral("data", l, r, f, v));
 	}
 
@@ -217,6 +218,9 @@ public class RescueEnv extends Environment {
 		}
 		emulator.moveTo(side);
 		emulator.printRealInfo();
+		for (Map<Integer, List<Character>> record : model.encounters) {
+			record.values().iterator().next().add(side);
+		}
 		Map<Location, List<int[]>> remain = getRemain((ListTerm) action.getTerm(1));
 		remain = model.updateRemain(remain, side);
 		putRemain(remain);
@@ -231,9 +235,14 @@ public class RescueEnv extends Environment {
 
 	private void checkVic(Structure action) throws NoValueException {
 		// TODO check the cell and rescue the victim if there is
-		int x = (int) ((NumberTerm) action.getTerm(0)).solve();
-		int y = (int) ((NumberTerm) action.getTerm(1)).solve();
-		model.checkAndRescue(new Location(x, y));
+		if (action.getArity() == 2) {
+			int x = (int) ((NumberTerm) action.getTerm(0)).solve();
+			int y = (int) ((NumberTerm) action.getTerm(1)).solve();
+			model.checkAndRescue(new Location(x, y));
+		} else if (action.getArity() == 1) {
+			int v = (int) ((NumberTerm) action.getTerm(0)).solve();
+			model.checkAndRescue(v);
+		}
 	}
 
 }
