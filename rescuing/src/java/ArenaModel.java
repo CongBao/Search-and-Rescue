@@ -54,6 +54,17 @@ public class ArenaModel extends GridWorldModel {
 		}
 	}
 
+	/**
+	 * Reduce the number of possible cells that the robot located in.
+	 *
+	 * @param remain
+	 *            the remaining possible cells with headings
+	 * @param obsData
+	 *            data of obstacles, in [left, right, front]
+	 * @param vicData
+	 *            data of victim
+	 * @return a new map of remaining possible cells
+	 */
 	public Map<Location, List<int[]>> localize(Map<Location, List<int[]>> remain, boolean[] obsData, int vicData) {
 		Map<Location, List<int[]>> possible = new HashMap<>();
 		for (Location pos : remain.keySet()) {
@@ -74,6 +85,15 @@ public class ArenaModel extends GridWorldModel {
 		return possible;
 	}
 
+	/**
+	 * Update the map of remaining possible cells after each moving.
+	 *
+	 * @param remain
+	 *            the remaining possible cells with headings
+	 * @param side
+	 *            the side to go, in ['L', 'R', 'F']
+	 * @return a new map of remaining possible cells
+	 */
 	public Map<Location, List<int[]>> updateRemain(Map<Location, List<int[]>> remain, char side) {
 		Map<Location, List<int[]>> updated = new HashMap<>();
 		for (Location pos : remain.keySet()) {
@@ -100,6 +120,11 @@ public class ArenaModel extends GridWorldModel {
 		return updated;
 	}
 
+	/**
+	 * Find an optimal path covering all victims.
+	 *
+	 * @return a list of locations the robot should go
+	 */
 	public List<Location> findOptimalPath() {
 		AStar aStar = new AStar(this);
 		List<Location> optimalPath = new LinkedList<>();
@@ -114,6 +139,15 @@ public class ArenaModel extends GridWorldModel {
 		return optimalPath;
 	}
 
+	/**
+	 * Use A* algorithm to find a nearest neighbor in a list of locations
+	 *
+	 * @param start
+	 *            the start point
+	 * @param neighbors
+	 *            a list of neighbor locations
+	 * @return the nearest location in list
+	 */
 	public Location findNearestTarget(Location start, List<Location> neighbors) {
 		AStar aStar = new AStar(this);
 		Map<Location, Integer> dis = new HashMap<>();
@@ -130,6 +164,12 @@ public class ArenaModel extends GridWorldModel {
 		return disList.get(0).getKey();
 	}
 
+	/**
+	 * Travel to the given cell.
+	 *
+	 * @param loc
+	 *            the {@link Location} of cell
+	 */
 	public void travelTo(Location loc) {
 		Location now = getAgPos(SCOUT);
 		if (now.x < loc.x) {
@@ -145,6 +185,12 @@ public class ArenaModel extends GridWorldModel {
 		setAgPos(SCOUT, now);
 	}
 
+	/**
+	 * Check the given cell, if there is a victim, rescue him.
+	 *
+	 * @param loc
+	 *            the {@link Location} of cell
+	 */
 	public void checkAndRescue(Location loc) {
 		// TODO add more function
 		if (hasObject(VIC_POS, loc)) {

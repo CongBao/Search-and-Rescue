@@ -196,7 +196,6 @@ public class RescueEnv extends Environment {
 		NumberTerm f = ASSyntax.createNumber(obsData[2] ? 1 : 0);
 		NumberTerm v = ASSyntax.createNumber(vicData);
 		addPercept(SCOUT, ASSyntax.createLiteral("data", l, r, f, v));
-		System.out.println(l + ", " + r + ", " + f + ", " + v);
 	}
 
 	private void move(Structure action) throws NoValueException {
