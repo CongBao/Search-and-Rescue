@@ -112,6 +112,7 @@ public class ArenaModel extends GridWorldModel {
 			}
 		}
 		for (Location pos : possible.keySet()) {
+			((ArenaView) view).remain = possible;
 			add(POS_LOC, pos);
 		}
 		return possible;
@@ -153,6 +154,7 @@ public class ArenaModel extends GridWorldModel {
 			}
 		}
 		for (Location pos : updated.keySet()) {
+			((ArenaView) view).remain = updated;
 			add(POS_LOC, pos);
 		}
 		return updated;
@@ -208,7 +210,7 @@ public class ArenaModel extends GridWorldModel {
 	 * @param loc
 	 *            the {@link Location} of cell
 	 */
-	public void travelTo(Location loc) {
+	public void travelTo(Location loc) { // TODO to be changed
 		Location now = getAgPos(SCOUT);
 		if (now.x < loc.x) {
 			now.x++;
@@ -230,7 +232,7 @@ public class ArenaModel extends GridWorldModel {
 	 *            the {@link Location} of cell
 	 */
 	public void checkAndRescue(Location loc) {
-		// TODO add more function
+		// TODO add more functions
 		if (hasObject(VIC_POS, loc)) {
 			remove(VIC_POS, loc);
 			System.out.println("A victim is rescued.");

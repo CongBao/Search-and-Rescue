@@ -22,7 +22,6 @@
 +!explore(S, M)[source(doctor)] : true
                                 <- .print("I will try to explore my ", S, " cell.");
                                    move(S, M);
-                                   .wait(500);
                                    !detect.
 
 /* Path finding */
