@@ -7,7 +7,7 @@
 1. Jason:
     - [ ] Potential problem that it may travel in a cycle during localization.
     - [ ] Pathfinding algorithm is not optimal.
-    - [ ] Add more kinds of victims.
+    - [X] Add more kinds of victims.
     - [X] Some issues in visibility of possible location and heading.
     - [ ] There's a small possibility that the localization algorithm will end with 0.
 

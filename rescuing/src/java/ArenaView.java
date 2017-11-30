@@ -42,7 +42,6 @@ public class ArenaView extends GridWorldView {
 			drawVic(g, x, y, Color.green);
 			break;
 		case ArenaModel.POS_LOC:
-			//drawPoss(g, x, y, Color.yellow);
 			drawRemain(g, Color.yellow);
 			break;
 		default:
@@ -58,13 +57,6 @@ public class ArenaView extends GridWorldView {
 	}
 
 	public void drawVic(Graphics g, int x, int y, Color c) {
-		g.setColor(c);
-		g.fillRect(x * cellSizeW + 1, y * cellSizeH + 1, cellSizeW - 1, cellSizeH - 1);
-		g.setColor(Color.black);
-		g.drawRect(x * cellSizeW + 2, y * cellSizeH + 2, cellSizeW - 4, cellSizeH - 4);
-	}
-
-	public void drawPoss(Graphics g, int x, int y, Color c) {
 		g.setColor(c);
 		g.fillRect(x * cellSizeW + 1, y * cellSizeH + 1, cellSizeW - 1, cellSizeH - 1);
 		g.setColor(Color.black);

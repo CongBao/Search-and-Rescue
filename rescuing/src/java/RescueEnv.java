@@ -142,7 +142,7 @@ public class RescueEnv extends Environment {
 
 	private void putVictims() {
 		List<Term> possibleVic = new LinkedList<>();
-		for (Location loc : model.possibleVictims) {
+		for (Location loc : model.possibleVictims.keySet()) {
 			NumberTerm x = ASSyntax.createNumber(loc.x);
 			NumberTerm y = ASSyntax.createNumber(loc.y);
 			NumberTerm v = ASSyntax.createNumber(model.getObject(loc));

@@ -23,7 +23,7 @@ public class ArenaModel extends GridWorldModel {
 
 	public static final int POS_LOC = 0x80;
 
-	List<Location> possibleVictims;
+	Map<Location, Integer> possibleVictims;
 	List<Map<Integer, List<Character>>> encounters;
 
 	public ArenaModel() {
@@ -41,13 +41,13 @@ public class ArenaModel extends GridWorldModel {
 		add(OBSTACLE, 4, 5);
 		add(OBSTACLE, 6, 4);
 		// possible victims
-		possibleVictims = new LinkedList<>();
-		possibleVictims.add(new Location(1, 2));
-		possibleVictims.add(new Location(2, 5));
-		possibleVictims.add(new Location(3, 4));
-		possibleVictims.add(new Location(4, 3));
-		possibleVictims.add(new Location(5, 5));
-		for (Location loc : possibleVictims) {
+		possibleVictims = new HashMap<>();
+		possibleVictims.put(new Location(1, 2), VIC_CRI);
+		possibleVictims.put(new Location(2, 5), VIC_SER);
+		possibleVictims.put(new Location(3, 4), VIC_MIN);
+		possibleVictims.put(new Location(4, 3), VIC_POS);
+		possibleVictims.put(new Location(5, 5), VIC_POS);
+		for (Location loc : possibleVictims.keySet()) {
 			add(VIC_POS, loc);
 		}
 		encounters = new LinkedList<>();
@@ -168,7 +168,7 @@ public class ArenaModel extends GridWorldModel {
 	public List<Location> findOptimalPath() {
 		AStar aStar = new AStar(this);
 		List<Location> optimalPath = new LinkedList<>();
-		List<Location> remain = new LinkedList<>(possibleVictims);
+		List<Location> remain = new LinkedList<>(possibleVictims.keySet());
 		Location start = getAgPos(SCOUT);
 		while (!remain.isEmpty()) {
 			Location nearest = findNearestTarget(start, remain);
@@ -232,10 +232,12 @@ public class ArenaModel extends GridWorldModel {
 	 *            the {@link Location} of cell
 	 */
 	public void checkAndRescue(Location loc) {
-		// TODO add more functions
 		if (hasObject(VIC_POS, loc)) {
+			int vic = possibleVictims.remove(loc);
 			remove(VIC_POS, loc);
-			System.out.println("A victim is rescued.");
+			if (vic > VIC_POS) {
+				add(vic, loc);
+			}
 		}
 	}
 
@@ -281,8 +283,11 @@ public class ArenaModel extends GridWorldModel {
 					break;
 				}
 			}
-			possibleVictims.remove(nowPos);
+			int vic = possibleVictims.remove(nowPos);
 			remove(victim, nowPos);
+			if (vic > VIC_POS) {
+				add(vic, nowPos);
+			}
 		}
 	}
 
