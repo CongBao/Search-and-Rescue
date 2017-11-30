@@ -1,15 +1,15 @@
 # Search-and-Rescue
-COMP329 Assignment2
+### COMP329 Assignment2
 
-Members: Samuel David Brundell, Chaoyi Han, Cong Bao
+### Members: Samuel David Brundell, Chaoyi Han, Cong Bao
 
-TODO (30 Nov):
+## TODO (30 Nov):
 1. Jason:
-    * potential problem that it may travel in a cycle during localization
-    * pathfinding algorithm is not optimal
-    * add more kinds of victims
-    * some issues in possible location visibility during localization
-    * improve communications between doctor and scout
+    * Potential problem that it may travel in a cycle during localization.
+    * Pathfinding algorithm is not optimal.
+    * Add more kinds of victims.
+    * [X] Some issues in visibility of possible location and heading.
+    * There's a small possibility that the localization algorithm will end with 0.
 
 2. LeJOS:
     * Haven't started.
@@ -17,13 +17,13 @@ TODO (30 Nov):
 3. Connection:
     * Haven't started.
 
-TODO (27 Nov):
+## TODO (27 Nov):
 1. Jason:
-    * localization algorithm
-    * organize perceptions and beliefs
-    * improve communications between doctor and scout
-    * build an emulator
-    * test using emulator
+    * [X] Localization algorithm.
+    * [X] Organize perceptions and beliefs.
+    * Improve communications between doctor and scout.
+    * [X] Build an emulator.
+    * [X] Test using emulator.
 2. LeJOS:
     * Haven't started.
 3. Connection:
