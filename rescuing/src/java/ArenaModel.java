@@ -21,6 +21,8 @@ public class ArenaModel extends GridWorldModel {
 	public static final int VIC_SER = 0x20;
 	public static final int VIC_MIN = 0x40;
 
+	public static final int POS_LOC = 0x80;
+
 	List<Location> possibleVictims;
 	// List<List<Character>> encounters;
 	List<Map<Integer, List<Character>>> encounters;
@@ -91,6 +93,9 @@ public class ArenaModel extends GridWorldModel {
 	 * @return a new map of remaining possible cells
 	 */
 	public Map<Location, List<int[]>> localize(Map<Location, List<int[]>> remain, boolean[] obsData, int vicData) {
+		for (Location pos : remain.keySet()) {
+			remove(POS_LOC, pos);
+		}
 		Map<Location, List<int[]>> possible = new HashMap<>();
 		for (Location pos : remain.keySet()) {
 			List<int[]> posDir = new LinkedList<>();
@@ -107,6 +112,9 @@ public class ArenaModel extends GridWorldModel {
 				possible.put(pos, posDir);
 			}
 		}
+		for (Location pos : possible.keySet()) {
+			add(POS_LOC, pos);
+		}
 		return possible;
 	}
 
@@ -120,6 +128,9 @@ public class ArenaModel extends GridWorldModel {
 	 * @return a new map of remaining possible cells
 	 */
 	public Map<Location, List<int[]>> updateRemain(Map<Location, List<int[]>> remain, char side) {
+		for (Location pos : remain.keySet()) {
+			remove(POS_LOC, pos);
+		}
 		Map<Location, List<int[]>> updated = new HashMap<>();
 		for (Location pos : remain.keySet()) {
 			for (int[] dir : remain.get(pos)) {
@@ -141,6 +152,9 @@ public class ArenaModel extends GridWorldModel {
 				updated.putIfAbsent(loc, new LinkedList<>());
 				updated.get(loc).add(turned);
 			}
+		}
+		for (Location pos : updated.keySet()) {
+			add(POS_LOC, pos);
 		}
 		return updated;
 	}

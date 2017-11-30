@@ -1,8 +1,13 @@
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Polygon;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import jason.environment.grid.GridWorldView;
+import jason.environment.grid.Location;
 
 public class ArenaView extends GridWorldView {
 
@@ -34,6 +39,9 @@ public class ArenaView extends GridWorldView {
 		case ArenaModel.VIC_MIN:
 			drawVic(g, x, y, Color.green);
 			break;
+		case ArenaModel.POS_LOC:
+			drawPoss(g, x, y, Color.yellow);
+			break;
 		default:
 			break;
 		}
@@ -51,6 +59,43 @@ public class ArenaView extends GridWorldView {
 		g.fillRect(x * cellSizeW + 1, y * cellSizeH + 1, cellSizeW - 1, cellSizeH - 1);
 		g.setColor(Color.black);
 		g.drawRect(x * cellSizeW + 2, y * cellSizeH + 2, cellSizeW - 4, cellSizeH - 4);
+	}
+
+	public void drawPoss(Graphics g, int x, int y, Color c) {
+		g.setColor(c);
+		g.fillRect(x * cellSizeW + 1, y * cellSizeH + 1, cellSizeW - 1, cellSizeH - 1);
+		g.setColor(Color.black);
+		g.drawRect(x * cellSizeW + 2, y * cellSizeH + 2, cellSizeW - 4, cellSizeH - 4);
+	}
+
+	public void drawRemain(Map<Location, List<int[]>> remain) {
+		Graphics g = getCanvas().getGraphics();
+		g.setColor(Color.yellow);
+		for (Location pos : remain.keySet()) {
+			for (int[] dir : remain.get(pos)) {
+				int x = pos.x;
+				int y = pos.y;
+				Polygon p = new Polygon();
+				if (Arrays.equals(dir, Emulator.N)) {
+					p.addPoint(x * cellSizeW + cellSizeW / 2, y * cellSizeH + 1);
+					p.addPoint(x * cellSizeW + 1, y * cellSizeH + cellSizeH - 1);
+					p.addPoint(x * cellSizeW + cellSizeW - 1, y * cellSizeH + cellSizeH - 1);
+				} else if (Arrays.equals(dir, Emulator.S)) {
+					p.addPoint(x * cellSizeW + 1, y * cellSizeH + 1);
+					p.addPoint(x * cellSizeW + cellSizeW - 1, y * cellSizeH + 1);
+					p.addPoint(x * cellSizeW + cellSizeW / 2, y * cellSizeH + cellSizeH - 1);
+				} else if (Arrays.equals(dir, Emulator.W)) {
+					p.addPoint(x * cellSizeW + 1, y * cellSizeH + cellSizeH / 2);
+					p.addPoint(x * cellSizeW + cellSizeW - 1, y * cellSizeH + 1);
+					p.addPoint(x * cellSizeW + cellSizeW - 1, y * cellSizeH + cellSizeH - 1);
+				} else if (Arrays.equals(dir, Emulator.E)) {
+					p.addPoint(x * cellSizeW + 1, y * cellSizeH + 1);
+					p.addPoint(x * cellSizeW + 1, y * cellSizeH + cellSizeH - 1);
+					p.addPoint(x * cellSizeW + cellSizeW - 1, y * cellSizeH + cellSizeH / 2);
+				}
+				g.fillPolygon(p);
+			}
+		}
 	}
 
 }

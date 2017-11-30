@@ -182,6 +182,7 @@ public class RescueEnv extends Environment {
 		int y = (int) ((NumberTerm) action.getTerm(1)).solve();
 		int d1 = (int) ((NumberTerm) action.getTerm(2)).solve();
 		int d2 = (int) ((NumberTerm) action.getTerm(3)).solve();
+		model.remove(ArenaModel.POS_LOC, x, y);
 		model.removeCheckedVic(new int[] { x, y }, new int[] { d1, d2 });
 		putVictims();
 		model.setAgPos(ArenaModel.SCOUT, x, y);
