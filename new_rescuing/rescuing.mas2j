@@ -1,0 +1,13 @@
+MAS rescuing {
+
+	infrastructure: Centralised
+
+	environment: RescueEnv
+
+	agents:
+		scout;
+		doctor;
+
+	aslSourcePath:
+		"src/asl";
+}
