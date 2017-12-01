@@ -22,7 +22,7 @@ import jason.environment.grid.Location;
 
 public class RescueEnv extends Environment {
 
-	private Emulator emulator; // for emulating
+	private Robot robot;
 
 	public static final String DOCTOR = "doctor";
 	public static final String SCOUT = "scout";
@@ -40,8 +40,8 @@ public class RescueEnv extends Environment {
 		model.setView(view);
 		initRemain();
 
-		emulator = new Emulator(model); // TODO change to real robot
-		emulator.printRealInfo();
+		robot = new Emulator(model); // TODO change to real robot
+		logger.info(robot.toString());
 	}
 
 	public void initRemain() {
@@ -190,8 +190,8 @@ public class RescueEnv extends Environment {
 	}
 
 	private void detect(Structure action) {
-		boolean[] obsData = emulator.detectObstacle();
-		int vicData = emulator.detectVictim();
+		boolean[] obsData = robot.detectObstacle();
+		int vicData = robot.detectVictim();
 		NumberTerm l = ASSyntax.createNumber(obsData[0] ? 1 : 0);
 		NumberTerm r = ASSyntax.createNumber(obsData[1] ? 1 : 0);
 		NumberTerm f = ASSyntax.createNumber(obsData[2] ? 1 : 0);
@@ -217,8 +217,8 @@ public class RescueEnv extends Environment {
 		} else if (action.getTerm(0).equals(front)) {
 			side = 'F';
 		}
-		emulator.moveTo(side);
-		emulator.printRealInfo();
+		robot.moveTo(side);
+		logger.info(robot.toString());
 		for (Map<Integer, List<Character>> record : model.encounters) {
 			record.values().iterator().next().add(side);
 		}
@@ -232,15 +232,15 @@ public class RescueEnv extends Environment {
 		int y = (int) ((NumberTerm) action.getTerm(1)).solve();
 		Location target = new Location(x, y);
 		model.travelTo(target);
-		emulator.moveTo(target);
-		emulator.printRealInfo();
+		robot.moveTo(target);
+		logger.info(robot.toString());
 	}
 
 	private void checkVic(Structure action) throws NoValueException {
 		if (action.getArity() == 2) {
 			int x = (int) ((NumberTerm) action.getTerm(0)).solve();
 			int y = (int) ((NumberTerm) action.getTerm(1)).solve();
-			int vic = emulator.detectVictim();
+			int vic = robot.detectVictim();
 			model.checkAndRescue(new Location(x, y), vic);
 		} else if (action.getArity() == 1) {
 			int v = (int) ((NumberTerm) action.getTerm(0)).solve();

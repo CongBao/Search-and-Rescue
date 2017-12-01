@@ -10,12 +10,7 @@ import jason.environment.grid.Location;
  * @author Cong Bao
  * @author Samuel David Brundell
  */
-public class Emulator {
-
-	public static final int[] N = new int[] { 0, -1 };
-	public static final int[] S = new int[] { 0, 1 };
-	public static final int[] W = new int[] { -1, 0 };
-	public static final int[] E = new int[] { 1, 0 };
+public class Emulator implements Robot {
 
 	private ArenaModel model;
 
@@ -89,6 +84,7 @@ public class Emulator {
 	 *
 	 * @return distance data of [left, right, front]
 	 */
+	@Override
 	public boolean[] detectObstacle() {
 		boolean[] occupies = new boolean[3];
 		occupies[0] = !model.isFreeOfObstacle(pos[0] + dir[1], pos[1] - dir[0]);
@@ -102,6 +98,7 @@ public class Emulator {
 	 *
 	 * @return the id of victim
 	 */
+	@Override
 	public int detectVictim() {
 		if (model.hasObject(ArenaModel.VIC_POS, pos[0], pos[1])) {
 			int rand = random.nextInt(posVicCount + actVicCount);
@@ -121,6 +118,7 @@ public class Emulator {
 	 * @param side
 	 *            the side to go, in ['L', 'R', 'F', 'B']
 	 */
+	@Override
 	public void moveTo(char side) {
 		switch (side) {
 		case 'L':
@@ -146,6 +144,7 @@ public class Emulator {
 	 * @param loc
 	 *            the {@link Location} to go
 	 */
+	@Override
 	public void moveTo(Location loc) {
 		int[] to = new int[] { loc.x - pos[0], loc.y - pos[1] };
 		if (Arrays.equals(dir, to)) {
@@ -168,13 +167,9 @@ public class Emulator {
 		}
 	}
 
-	/**
-	 * Print the real data of the robot.
-	 */
-	public void printRealInfo() {
-		System.out.print("[Emulator Robot Real Info] ");
-		System.out.print("Pos: (" + pos[0] + ", " + pos[1] + "), ");
-		System.out.println("Dir: (" + dir[0] + ", " + dir[1] + ")");
+	@Override
+	public String toString() {
+		return "[Emulator Robot Real Info] Pos: (" + pos[0] + ", " + pos[1] + "), Dir: (" + dir[0] + ", " + dir[1] + ")";
 	}
 
 }
