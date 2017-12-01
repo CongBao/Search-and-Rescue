@@ -5,6 +5,8 @@
 
 ## TODO (30 Nov):
 1. Jason:
+    - [ ] Stop the scout after all victims detected.
+    - [ ] Add counts of arrived cells.
     - [ ] Potential problem that it may travel in a cycle during localization.
     - [ ] Pathfinding algorithm is not optimal.
     - [X] Add more kinds of victims.
