@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.Random;
 
 import jason.environment.grid.Location;
@@ -7,6 +8,7 @@ import jason.environment.grid.Location;
  * So experiments can carry on even without a robot.
  *
  * @author Cong Bao
+ * @author Samuel David Brundell
  */
 public class Emulator {
 
@@ -17,8 +19,13 @@ public class Emulator {
 
 	private ArenaModel model;
 
+	private Random random;
+
 	private int[] pos;
 	private int[] dir;
+
+	private int posVicCount = 2;
+	private int actVicCount = 3;
 
 	/**
 	 * The constructor.
@@ -28,6 +35,7 @@ public class Emulator {
 	 */
 	public Emulator(ArenaModel model) {
 		this.model = model;
+		random = new Random(System.currentTimeMillis());
 		initRobot();
 	}
 
@@ -35,7 +43,6 @@ public class Emulator {
 	 * Initialize a robot with random location and heading.
 	 */
 	public void initRobot() {
-		Random random = new Random(System.currentTimeMillis());
 		while (pos == null) {
 			int x = random.nextInt(model.getWidth() - 2) + 1;
 			int y = random.nextInt(model.getHeight() - 2) + 1;
@@ -96,26 +103,23 @@ public class Emulator {
 	 * @return the id of victim
 	 */
 	public int detectVictim() {
-		int x = pos[0];
-		int y = pos[1];
-		if (model.hasObject(ArenaModel.VIC_POS, x, y)) {
-			return ArenaModel.VIC_POS;
-		} else if (model.hasObject(ArenaModel.VIC_CRI, x, y)) {
-			return ArenaModel.VIC_CRI;
-		} else if (model.hasObject(ArenaModel.VIC_SER, x, y)) {
-			return ArenaModel.VIC_SER;
-		} else if (model.hasObject(ArenaModel.VIC_MIN, x, y)) {
-			return ArenaModel.VIC_MIN;
-		} else {
-			return ArenaModel.CLEAN;
+		if (model.hasObject(ArenaModel.VIC_POS, pos[0], pos[1])) {
+			int rand = random.nextInt(posVicCount + actVicCount);
+			if (rand < posVicCount) {
+				posVicCount--;
+				return ArenaModel.VIC_POS;
+			}
+			actVicCount--;
+			return (int) Math.pow(2, random.nextInt(3) + 4);
 		}
+		return ArenaModel.CLEAN;
 	}
 
 	/**
 	 * Emulate the movement of robot.
 	 *
 	 * @param side
-	 *            the side to go, in ['L', 'R', 'F']
+	 *            the side to go, in ['L', 'R', 'F', 'B']
 	 */
 	public void moveTo(char side) {
 		switch (side) {
@@ -126,6 +130,9 @@ public class Emulator {
 			dir = new int[] { -dir[1], dir[0] };
 			break;
 		case 'F':
+			break;
+		case 'B':
+			dir = new int[] { -dir[0], -dir[1] };
 			break;
 		default:
 			break;
@@ -141,6 +148,10 @@ public class Emulator {
 	 */
 	public void moveTo(Location loc) {
 		int[] to = new int[] { loc.x - pos[0], loc.y - pos[1] };
+		if (Arrays.equals(dir, to)) {
+			moveTo('F');
+			return;
+		}
 		int sin = dir[0] * to[1] - dir[1] * to[0];
 		switch (sin) {
 		case -1:
@@ -150,7 +161,7 @@ public class Emulator {
 			moveTo('R');
 			break;
 		case 0:
-			moveTo('F');
+			moveTo('B');
 			break;
 		default:
 			break;

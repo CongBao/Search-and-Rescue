@@ -9,7 +9,7 @@
     - [ ] Pathfinding algorithm is not optimal.
     - [X] Add more kinds of victims.
     - [X] Some issues in visibility of possible location and heading.
-    - [ ] There's a small possibility that the localization algorithm will end with 0.
+    - [ ] There's a small possibility that the localization algorithm will end with 0. -> possible it's caused by jason asynchronous execution.
 
 2. LeJOS:
     - Haven't started.
@@ -21,7 +21,7 @@
 1. Jason:
     - [X] Localization algorithm.
     - [X] Organize perceptions and beliefs.
-    - [ ] Improve communications between doctor and scout.
+    - [ ] Improve communications between doctor and scout -> try to remove all .wait actions
     - [X] Build an emulator.
     - [X] Test using emulator.
 2. LeJOS:

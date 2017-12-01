@@ -22,6 +22,7 @@
 +!explore(S, M)[source(doctor)] : true
                                 <- .print("I will try to explore my ", S, " cell.");
                                    move(S, M);
+                                   .wait(500);
                                    !detect.
 
 /* Path finding */
@@ -44,5 +45,5 @@
                                  check_vic(X, Y).
 
 +!check(V)[source(doctor)] : true
-                            <- .print("I'll check my place.");
-                               check_vic(V).
+                        <- .print("I'll check my place.");
+                           check_vic(V).

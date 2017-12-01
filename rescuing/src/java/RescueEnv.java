@@ -142,11 +142,10 @@ public class RescueEnv extends Environment {
 
 	private void putVictims() {
 		List<Term> possibleVic = new LinkedList<>();
-		for (Location loc : model.possibleVictims.keySet()) {
+		for (Location loc : model.possibleVictims) {
 			NumberTerm x = ASSyntax.createNumber(loc.x);
 			NumberTerm y = ASSyntax.createNumber(loc.y);
-			NumberTerm v = ASSyntax.createNumber(model.getObject(loc));
-			Literal l = ASSyntax.createLiteral("status", x, y, v);
+			Literal l = ASSyntax.createLiteral("pos", x, y);
 			possibleVic.add(l);
 		}
 		ListTerm lt = ASSyntax.createList(possibleVic);
@@ -229,21 +228,20 @@ public class RescueEnv extends Environment {
 	}
 
 	private void travel(Structure action) throws NoValueException {
-		// TODO travel to the given cell
 		int x = (int) ((NumberTerm) action.getTerm(0)).solve();
 		int y = (int) ((NumberTerm) action.getTerm(1)).solve();
 		Location target = new Location(x, y);
 		model.travelTo(target);
-		emulator.moveTo(target); // TODO exist bug
+		emulator.moveTo(target);
 		emulator.printRealInfo();
 	}
 
 	private void checkVic(Structure action) throws NoValueException {
-		// TODO check the cell and rescue the victim if there is
 		if (action.getArity() == 2) {
 			int x = (int) ((NumberTerm) action.getTerm(0)).solve();
 			int y = (int) ((NumberTerm) action.getTerm(1)).solve();
-			model.checkAndRescue(new Location(x, y));
+			int vic = emulator.detectVictim();
+			model.checkAndRescue(new Location(x, y), vic);
 		} else if (action.getArity() == 1) {
 			int v = (int) ((NumberTerm) action.getTerm(0)).solve();
 			model.checkAndRescue(v);

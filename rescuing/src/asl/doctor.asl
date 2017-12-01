@@ -2,7 +2,7 @@
 
 /* Initial beliefs and rules */
 
-// vic_pos([status(X, Y, V), ...])
+// vic_pos([pos(X, Y), ...])
 // remain([pair(pos(X, Y), dir(D1, D2)), ...])
 path([]).
 
@@ -26,7 +26,7 @@ path([]).
                                          .wait(500);
                                      };
                                      localize(L, R, F, V, M); // -> +remain([...])
-                                     .wait(500);
+                                     .wait(1000);
                                      ?remain(N);
                                      !explore(L, R, F, N).
 
@@ -61,11 +61,11 @@ path([]).
 +pos(X, Y)[source(scout)] : path(P) & not .empty(P)
                           <- .print("I know Scout is at (", X, ",", Y, ")");
                              ?vic_pos(V);
-                             if (.member(status(X, Y, _), V)) {
+                             if (.member(pos(X, Y), V)) {
                                  .print("Please check if there is a victim.");
                                  .send(scout, achieve, check(X, Y));
                                  .wait(500);
-                                 .delete(status(X, Y, _), V, R);
+                                 .delete(pos(X, Y), V, R);
                                  -+vic_pos(R);
                              };
                              .abolish(pos(_, _));

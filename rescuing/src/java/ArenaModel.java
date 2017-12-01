@@ -23,7 +23,7 @@ public class ArenaModel extends GridWorldModel {
 
 	public static final int POS_LOC = 0x80;
 
-	Map<Location, Integer> possibleVictims;
+	List<Location> possibleVictims;
 	List<Map<Integer, List<Character>>> encounters;
 
 	public ArenaModel() {
@@ -41,13 +41,13 @@ public class ArenaModel extends GridWorldModel {
 		add(OBSTACLE, 4, 5);
 		add(OBSTACLE, 6, 4);
 		// possible victims
-		possibleVictims = new HashMap<>();
-		possibleVictims.put(new Location(1, 2), VIC_CRI);
-		possibleVictims.put(new Location(2, 5), VIC_SER);
-		possibleVictims.put(new Location(3, 4), VIC_MIN);
-		possibleVictims.put(new Location(4, 3), VIC_POS);
-		possibleVictims.put(new Location(5, 5), VIC_POS);
-		for (Location loc : possibleVictims.keySet()) {
+		possibleVictims = new LinkedList<>();
+		possibleVictims.add(new Location(1, 2));
+		possibleVictims.add(new Location(2, 5));
+		possibleVictims.add(new Location(3, 4));
+		possibleVictims.add(new Location(4, 3));
+		possibleVictims.add(new Location(5, 5));
+		for (Location loc : possibleVictims) {
 			add(VIC_POS, loc);
 		}
 		encounters = new LinkedList<>();
@@ -91,7 +91,7 @@ public class ArenaModel extends GridWorldModel {
 	 *            data of victim
 	 * @return a new map of remaining possible cells
 	 */
-	public Map<Location, List<int[]>> localize(Map<Location, List<int[]>> remain, boolean[] obsData, int vicData) {
+	public Map<Location, List<int[]>> localize(Map<Location, List<int[]>> remain, boolean[] obsData, int vicData) { // TODO sometimes result in 0
 		for (Location pos : remain.keySet()) {
 			remove(POS_LOC, pos);
 		}
@@ -168,7 +168,7 @@ public class ArenaModel extends GridWorldModel {
 	public List<Location> findOptimalPath() {
 		AStar aStar = new AStar(this);
 		List<Location> optimalPath = new LinkedList<>();
-		List<Location> remain = new LinkedList<>(possibleVictims.keySet());
+		List<Location> remain = new LinkedList<>(possibleVictims);
 		Location start = getAgPos(SCOUT);
 		while (!remain.isEmpty()) {
 			Location nearest = findNearestTarget(start, remain);
@@ -230,11 +230,13 @@ public class ArenaModel extends GridWorldModel {
 	 *
 	 * @param loc
 	 *            the {@link Location} of cell
+	 * @param vic
+	 *            the id of the victim
 	 */
-	public void checkAndRescue(Location loc) {
+	public void checkAndRescue(Location loc, int vic) {
 		if (hasObject(VIC_POS, loc)) {
-			int vic = possibleVictims.remove(loc);
 			remove(VIC_POS, loc);
+			possibleVictims.remove(loc);
 			if (vic > VIC_POS) {
 				add(vic, loc);
 			}
@@ -245,7 +247,7 @@ public class ArenaModel extends GridWorldModel {
 	 * Check the given victim value, and record it for future use
 	 *
 	 * @param vic
-	 *            the value of the victim
+	 *            the id of the victim
 	 */
 	public void checkAndRescue(int vic) {
 		Map<Integer, List<Character>> record = new HashMap<>(1, 2);
@@ -263,7 +265,7 @@ public class ArenaModel extends GridWorldModel {
 	 */
 	public void removeCheckedVic(int[] pos, int[] dir) {
 		for (Map<Integer, List<Character>> record : encounters) {
-			int victim = record.keySet().iterator().next();
+			int vic = record.keySet().iterator().next();
 			List<Character> steps = record.values().iterator().next();
 			Location nowPos = new Location(pos[0], pos[1]);
 			int[] nowDir = Arrays.copyOf(dir, dir.length);
@@ -283,10 +285,12 @@ public class ArenaModel extends GridWorldModel {
 					break;
 				}
 			}
-			int vic = possibleVictims.remove(nowPos);
-			remove(victim, nowPos);
-			if (vic > VIC_POS) {
-				add(vic, nowPos);
+			if (hasObject(VIC_POS, nowPos)) {
+				remove(VIC_POS, nowPos);
+				possibleVictims.remove(nowPos);
+				if (vic > VIC_POS) {
+					add(vic, nowPos);
+				}
 			}
 		}
 	}
