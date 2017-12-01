@@ -79,11 +79,14 @@ public class Emulator implements Robot {
 				&& model.isFree(ArenaModel.VIC_SER, x, y) && model.isFree(ArenaModel.VIC_MIN, x, y);
 	}
 
+	/**
+	 * Print the data in binary format, which will shown on LCD screen in real robot.
+	 */
 	@Override
 	public void updateArenaInfo(int[][] data) {
-		for (int i = 0; i < data.length; i++) {
-			for (int j = 0; j < data[i].length; j++) {
-				System.out.print(data[i][j] + "\t");
+		for (int i = 0; i < data[0].length; i++) {
+			for (int j = 0; j < data.length; j++) {
+				System.out.print(Integer.toBinaryString(data[j][i]) + "\t");
 			}
 			System.out.println();
 		}
@@ -179,7 +182,7 @@ public class Emulator implements Robot {
 
 	@Override
 	public String toString() {
-		return "[Emulator Robot Real Info] Pos: (" + pos[0] + ", " + pos[1] + "), Dir: (" + dir[0] + ", " + dir[1] + ")";
+		return "[Emulator Info] Pos: (" + pos[0] + ", " + pos[1] + "), Dir: (" + dir[0] + ", " + dir[1] + ")";
 	}
 
 }

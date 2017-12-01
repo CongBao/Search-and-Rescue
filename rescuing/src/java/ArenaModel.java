@@ -53,6 +53,11 @@ public class ArenaModel extends GridWorldModel {
 		encounters = new LinkedList<>();
 	}
 
+	/**
+	 * Return the model data.
+	 *
+	 * @return a 2-d array stored data
+	 */
 	public int[][] getModelData() {
 		return data;
 	}
@@ -95,7 +100,8 @@ public class ArenaModel extends GridWorldModel {
 	 *            data of victim
 	 * @return a new map of remaining possible cells
 	 */
-	public Map<Location, List<int[]>> localize(Map<Location, List<int[]>> remain, boolean[] obsData, int vicData) { // TODO sometimes result in 0
+	public Map<Location, List<int[]>> localize(Map<Location, List<int[]>> remain, boolean[] obsData, int vicData) {
+		// TODO sometimes result in 0
 		for (Location pos : remain.keySet()) {
 			remove(POS_LOC, pos);
 		}
@@ -214,7 +220,7 @@ public class ArenaModel extends GridWorldModel {
 	 * @param loc
 	 *            the {@link Location} of cell
 	 */
-	public void travelTo(Location loc) { // TODO to be changed
+	public void travelTo(Location loc) {
 		Location now = getAgPos(SCOUT);
 		if (now.x < loc.x) {
 			now.x++;
