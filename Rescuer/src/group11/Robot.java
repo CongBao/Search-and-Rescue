@@ -1,4 +1,4 @@
-import jason.environment.grid.Location;
+package group11;
 
 public interface Robot {
 
@@ -40,9 +40,9 @@ public interface Robot {
 	/**
 	 * Move to the given location.
 	 *
-	 * @param loc
-	 *            the {@link Location} to go
+	 * @param pos
+	 *            the position to go
 	 */
-	void moveTo(Location loc);
+	void moveTo(int[] pos);
 
 }

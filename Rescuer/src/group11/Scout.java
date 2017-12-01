@@ -1,7 +1,5 @@
 package group11;
 
-import static group11.Model.*;
-
 import java.util.Arrays;
 
 import lejos.hardware.Button;
@@ -10,7 +8,7 @@ import lejos.hardware.lcd.GraphicsLCD;
 import lejos.hardware.motor.Motor;
 import lejos.robotics.navigation.MovePilot;
 
-public class Scout {
+public class Scout implements Robot {
 
 	private Arena arena;
 
@@ -67,7 +65,7 @@ public class Scout {
 				ie.printStackTrace();
 			}
 			if (Float.isInfinite(data[i])) {
-				data[i] = (float) ARENA_DEPTH;
+				data[i] = (float) Arena.ARENA_DEPTH;
 			}
 		}
 		Arrays.sort(data);
@@ -119,15 +117,31 @@ public class Scout {
 		return dis;
 	}
 
-	public void test() {
-		pilot.travel(50);
-		pilot.rotate(90);
-		pilot.travel(50);
-		pilot.rotate(90);
-		pilot.travel(50);
-		pilot.rotate(90);
-		pilot.travel(50);
-		pilot.rotate(90);
+	@Override
+	public void updateArenaInfo(int[][] data) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public boolean[] detectObstacle() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int detectVictim() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void moveTo(char side) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void moveTo(int[] pos) {
+		// TODO Auto-generated method stub
 	}
 
 	public static void main(String[] args) {
@@ -135,7 +149,6 @@ public class Scout {
 		scout.lcd.drawString("Press any button to start", 0, 0, 0);
 		Button.waitForAnyPress();
 		scout.lcd.clear();
-		scout.test();
 	}
 
 }

@@ -79,6 +79,16 @@ public class Emulator implements Robot {
 				&& model.isFree(ArenaModel.VIC_SER, x, y) && model.isFree(ArenaModel.VIC_MIN, x, y);
 	}
 
+	@Override
+	public void updateArenaInfo(int[][] data) {
+		for (int i = 0; i < data.length; i++) {
+			for (int j = 0; j < data[i].length; j++) {
+				System.out.print(data[i][j] + "\t");
+			}
+			System.out.println();
+		}
+	}
+
 	/**
 	 * Emulate the distance data return by robot.
 	 *

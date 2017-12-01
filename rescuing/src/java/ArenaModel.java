@@ -53,6 +53,10 @@ public class ArenaModel extends GridWorldModel {
 		encounters = new LinkedList<>();
 	}
 
+	public int[][] getModelData() {
+		return data;
+	}
+
 	/**
 	 * Get the object located at given cell.
 	 *

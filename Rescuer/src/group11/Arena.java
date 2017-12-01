@@ -1,8 +1,28 @@
 package group11;
 
-import static group11.Model.*;
-
 public class Arena {
+
+	public static final double ARENA_WIDTH = 150;
+	public static final double ARENA_DEPTH = 190;
+	public static final int WIDTH = 6;
+	public static final int DEPTH = 6;
+	public static final double UNIT_WIDTH = ARENA_WIDTH / WIDTH;
+	public static final double UNIT_DEPTH = ARENA_DEPTH / DEPTH;
+
+	public static final int[] NORTH = new int[] { 0, -1 };
+	public static final int[] SOUTH = new int[] { 0, 1 };
+	public static final int[] WEST = new int[] { -1, 0 };
+	public static final int[] EAST = new int[] { 1, 0 };
+
+	public static final int[] UNKNOWN = new int[] { -1, -1 };
+
+	public static final int EMPTY = 0x00;
+	public static final int AGENT = 0x02;
+	public static final int OBSTACLE = 0x04;
+	public static final int VIC_POS = 0x08;
+	public static final int VIC_CRI = 0x10;
+	public static final int VIC_SER = 0x20;
+	public static final int VIC_MIN = 0x40;
 
 	private int[][] map;
 

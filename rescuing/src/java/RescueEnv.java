@@ -94,6 +94,7 @@ public class RescueEnv extends Environment {
 			nve.printStackTrace();
 			return false;
 		}
+		robot.updateArenaInfo(model.getModelData());
 		try {
 			Thread.sleep(500);
 		} catch (Exception e) {
