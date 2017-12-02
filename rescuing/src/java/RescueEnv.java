@@ -189,7 +189,7 @@ public class RescueEnv extends Environment {
 			obsData[i] = 1 == (int) ((NumberTerm) action.getTerm(i)).solve();
 		}
 		int vicData = (int) ((NumberTerm) action.getTerm(3)).solve();
-		remain = model.localize(remain, obsData, vicData);
+		remain = model.localize(remain, obsData, vicData > 0 ? ArenaModel.VIC_POS : 0);
 		putRemain(remain);
 	}
 

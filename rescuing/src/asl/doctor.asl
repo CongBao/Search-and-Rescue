@@ -19,7 +19,7 @@ vic_rescued(0).
 /* Localization */
 
 // Once scout send its detected data, use these data to reduce the number of possible cells we are located in
-+!data(L, R, F, V)[source(scout)] : remain(M) & .length(M, Len) & Len > 1
++!data(L, R, F, V, _)[source(scout)] : remain(M) & .length(M, Len) & Len > 1
                                   <- .print("There are ", Len, " possible status(es) left.");
                                      if (V > 0) {
                                          .print("Please check the victim at your place.");

@@ -13,9 +13,9 @@
          <- detect. // -> +data(L, R, F, V)
 
 // After data of obstacles and victims are collected, send them to doctor
-+data(L, R, F, V, _)[source(percept)] : true
-                                   <- .print("Obstacles: [", L, ",", R, ",", F, "]; Victim: ", V);
-                                      .send(doctor, achieve, data(L, R, F, V)).
++data(L, R, F, V, T)[source(percept)] : true
+                                      <- .print("Obstacles: [", L, ",", R, ",", F, "]; Victim: ", V);
+                                         .send(doctor, achieve, data(L, R, F, V, T)).
 
 // Explore one side following doctor's instructions
 +!explore(S, M)[source(doctor)] : true
