@@ -6,6 +6,7 @@
 ## TODO (02 Dec):
 1. Jason:
     - [X] Add a method to obtain percepts.
+    - [X] Beliefs will not fire if percepts with same content added.
 2. LeJOS:
     - [ ] Create some basic classes and methods.
     - [ ] Update arena information on LCD screen.

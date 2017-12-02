@@ -38,7 +38,7 @@ public class ArenaModel extends GridWorldModel {
 		add(OBSTACLE, 2, 4);
 		add(OBSTACLE, 2, 6);
 		add(OBSTACLE, 4, 2);
-		add(OBSTACLE, 4, 5);
+		add(OBSTACLE, 4, 4);
 		add(OBSTACLE, 6, 4);
 		// possible victims
 		possibleVictims = new LinkedList<>();

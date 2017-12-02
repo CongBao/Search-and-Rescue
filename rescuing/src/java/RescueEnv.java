@@ -95,6 +95,10 @@ public class RescueEnv extends Environment {
 		return null;
 	}
 
+	public NumberTerm getTimeStamp() {
+		return ASSyntax.createNumber(System.currentTimeMillis());
+	}
+
 	@Override
 	public boolean executeAction(String agName, Structure action) {
 		logger.info("Agent: " + agName + ", Action: " + action.getFunctor());
@@ -225,8 +229,8 @@ public class RescueEnv extends Environment {
 		NumberTerm r = ASSyntax.createNumber(obsData[1] ? 1 : 0);
 		NumberTerm f = ASSyntax.createNumber(obsData[2] ? 1 : 0);
 		NumberTerm v = ASSyntax.createNumber(vicData);
-		removePerceptsByUnif(SCOUT, Literal.parseLiteral("data(_, _, _, _)"));
-		addPercept(SCOUT, ASSyntax.createLiteral("data", l, r, f, v));
+		removePerceptsByUnif(SCOUT, Literal.parseLiteral("data(_, _, _, _, _)"));
+		addPercept(SCOUT, ASSyntax.createLiteral("data", l, r, f, v, getTimeStamp()));
 	}
 
 	// move to a given side, in ['L', 'R', 'F']
