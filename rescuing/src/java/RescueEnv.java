@@ -233,7 +233,7 @@ public class RescueEnv extends Environment {
 		addPercept(SCOUT, ASSyntax.createLiteral("data", l, r, f, v, getTimeStamp()));
 	}
 
-	// move to a given side, in ['L', 'R', 'F']
+	// move to a given side, in [left, right, front]
 	private void move(Structure action) throws NoValueException {
 		Term left = null, right = null, front = null;
 		try {
@@ -259,6 +259,8 @@ public class RescueEnv extends Environment {
 		Map<Location, List<int[]>> remain = getRemain((ListTerm) action.getTerm(1));
 		remain = model.updateRemain(remain, side);
 		putRemain(remain);
+		removePerceptsByUnif(SCOUT, Literal.parseLiteral("arrive(_)"));
+		addPercept(SCOUT, ASSyntax.createLiteral("arrive", getTimeStamp()));
 	}
 
 	// travel to a given location
@@ -268,6 +270,8 @@ public class RescueEnv extends Environment {
 		Location target = new Location(x, y);
 		model.travelTo(target);
 		robot.moveTo(target);
+		removePerceptsByUnif(SCOUT, Literal.parseLiteral("at(_, _, _)"));
+		addPercept(SCOUT, ASSyntax.createLiteral("at", action.getTerm(0), action.getTerm(1), getTimeStamp()));
 		logger.info(robot.toString());
 	}
 

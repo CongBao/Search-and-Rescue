@@ -31,7 +31,7 @@
 1. Jason:
     - [X] Localization algorithm.
     - [X] Organize perceptions and beliefs.
-    - [ ] Improve communications between doctor and scout -> try to remove all .wait actions
+    - [X] Improve communications between doctor and scout -> try to remove .wait actions
     - [X] Build an emulator.
     - [X] Test using emulator.
 2. LeJOS:

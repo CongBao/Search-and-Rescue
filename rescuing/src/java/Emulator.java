@@ -19,6 +19,10 @@ public class Emulator implements Robot {
 	private int[] pos;
 	private int[] dir;
 
+	private long moveDelay = 400L;
+	private long turnDelay = 100L;
+	private long scanDelay = 200L;
+
 	private int posVicCount = 2;
 	private int actVicCount = 3;
 
@@ -99,6 +103,11 @@ public class Emulator implements Robot {
 	 */
 	@Override
 	public boolean[] detectObstacle() {
+		try {
+			Thread.sleep(scanDelay);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		boolean[] occupies = new boolean[3];
 		occupies[0] = !model.isFreeOfObstacle(pos[0] + dir[1], pos[1] - dir[0]);
 		occupies[1] = !model.isFreeOfObstacle(pos[0] - dir[1], pos[1] + dir[0]);
@@ -148,7 +157,24 @@ public class Emulator implements Robot {
 		default:
 			break;
 		}
+		switch (side) {
+		case 'L':
+		case 'R':
+			try {
+				Thread.sleep(turnDelay);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			break;
+		default:
+			break;
+		}
 		pos = new int[] { pos[0] + dir[0], pos[1] + dir[1] };
+		try {
+			Thread.sleep(moveDelay);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -178,6 +204,30 @@ public class Emulator implements Robot {
 		default:
 			break;
 		}
+	}
+
+	public long getMoveDelay() {
+		return moveDelay;
+	}
+
+	public void setMoveDelay(long moveDelay) {
+		this.moveDelay = moveDelay;
+	}
+
+	public long getTurnDelay() {
+		return turnDelay;
+	}
+
+	public void setTurnDelay(long turnDelay) {
+		this.turnDelay = turnDelay;
+	}
+
+	public long getScanDelay() {
+		return scanDelay;
+	}
+
+	public void setScanDelay(long scanDelay) {
+		this.scanDelay = scanDelay;
 	}
 
 	@Override
