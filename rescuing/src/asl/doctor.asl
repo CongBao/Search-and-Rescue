@@ -5,6 +5,7 @@
 // vic_pos([pos(X, Y), ...])
 // remain([pair(pos(X, Y), dir(D1, D2)), ...])
 path([]).
+vic_rescued(0).
 
 /* Initial goals */
 
@@ -89,8 +90,12 @@ path([]).
 +!next(P) : .empty(P)
           <- .print("Done.").
 
+// If all victims are rescued, stop
++!next(P) : vic_rescued(N) & N >= 3
+          <- .print("Done.").
+
 // If the remaining path is not empty, find and notify scout the next cell to go
-+!next(P) : not .empty(P)
++!next(P) : not .empty(P) & vic_rescued(N) & N < 3
           <- .print("Remaining path: ", P);
              .nth(0, P, pos(X, Y));
              .print("Next, please go to (", X, ",", Y, ")");

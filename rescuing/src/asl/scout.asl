@@ -10,13 +10,12 @@
 
 // Detect surroundings
 +!detect : true
-         <- detect; // -> +data(L, R, F, V)
-            !data.
+         <- detect. // -> +data(L, R, F, V)
 
 // After data of obstacles and victims are collected, send them to doctor
-+!data : data(L, R, F, V)
-       <- .print("Obstacles: [", L, ",", R, ",", F, "]; Victim: ", V);
-          .send(doctor, achieve, data(L, R, F, V)).
++data(L, R, F, V)[source(percept)] : true
+                                   <- .print("Obstacles: [", L, ",", R, ",", F, "]; Victim: ", V);
+                                      .send(doctor, achieve, data(L, R, F, V)).
 
 // Explore one side following doctor's instructions
 +!explore(S, M)[source(doctor)] : true
@@ -24,6 +23,10 @@
                                    move(S, M);
                                    .wait(500);
                                    !detect.
+
++!check(V)[source(doctor)] : true
+                           <- .print("I'll check my place.");
+                              check_vic(V).
 
 /* Path finding */
 
@@ -43,7 +46,3 @@
 +!check(X, Y)[source(doctor)] : pos(X, Y)
                               <- .print("Checking position: (", X, ",", Y, ")");
                                  check_vic(X, Y).
-
-+!check(V)[source(doctor)] : true
-                        <- .print("I'll check my place.");
-                           check_vic(V).

@@ -1,8 +1,3 @@
-
-/**
- * Environment code for project rescuer
- */
-
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,6 +15,11 @@ import jason.asSyntax.parser.ParseException;
 import jason.environment.Environment;
 import jason.environment.grid.Location;
 
+/**
+ * Environment code for project rescuer.
+ *
+ * @author Cong Bao
+ */
 public class RescueEnv extends Environment {
 
 	private Robot robot;
@@ -44,6 +44,9 @@ public class RescueEnv extends Environment {
 		logger.info(robot.toString());
 	}
 
+	/**
+	 * Initialize the remain percept with all possible locations and headings.
+	 */
 	public void initRemain() {
 		List<Literal> remainCell = new LinkedList<>();
 		for (int i = 0; i < model.getWidth(); i++) {
@@ -74,6 +77,24 @@ public class RescueEnv extends Environment {
 		addPercept(DOCTOR, ASSyntax.createLiteral("remain", lt));
 	}
 
+	/**
+	 * Get a percept from agents.
+	 *
+	 * @param agName
+	 *            agent name
+	 * @param percept
+	 *            the percept name
+	 * @return a {@link Literal} if exists, otherwise null
+	 */
+	public Literal getPercept(String agName, String percept) {
+		for (Literal l : consultPercepts(agName)) {
+			if (l.getFunctor().equals(percept)) {
+				return l;
+			}
+		}
+		return null;
+	}
+
 	@Override
 	public boolean executeAction(String agName, Structure action) {
 		logger.info("Agent: " + agName + ", Action: " + action.getFunctor());
@@ -94,7 +115,7 @@ public class RescueEnv extends Environment {
 			nve.printStackTrace();
 			return false;
 		}
-		robot.updateArenaInfo(model.getModelData());
+		// robot.updateArenaInfo(model.getModelData()); // TODO
 		try {
 			Thread.sleep(500);
 		} catch (Exception e) {
@@ -103,6 +124,7 @@ public class RescueEnv extends Environment {
 		return true;
 	}
 
+	// get the remain percept from doctor
 	private Map<Location, List<int[]>> getRemain(List<Term> pairs) throws NoValueException {
 		removePerceptsByUnif(DOCTOR, Literal.parseLiteral("remain(_)"));
 		logger.info("Get remain size: " + pairs.size());
@@ -122,6 +144,7 @@ public class RescueEnv extends Environment {
 		return remain;
 	}
 
+	// put new remain percept to doctor
 	private void putRemain(Map<Location, List<int[]>> remain) {
 		List<Term> pairs = new LinkedList<>();
 		for (Location pos : remain.keySet()) {
@@ -141,6 +164,7 @@ public class RescueEnv extends Environment {
 		addPercept(DOCTOR, ASSyntax.createLiteral("remain", lt));
 	}
 
+	// put the victim percept to doctor
 	private void putVictims() {
 		List<Term> possibleVic = new LinkedList<>();
 		for (Location loc : model.possibleVictims) {
@@ -153,6 +177,7 @@ public class RescueEnv extends Environment {
 		addPercept(DOCTOR, ASSyntax.createLiteral("vic_pos", lt));
 	}
 
+	// reduce the possible positions in remain percept
 	private void localize(Structure action) throws NoValueException {
 		Map<Location, List<int[]>> remain = getRemain((ListTerm) action.getTerm(4));
 		boolean[] obsData = new boolean[3];
@@ -164,6 +189,7 @@ public class RescueEnv extends Environment {
 		putRemain(remain);
 	}
 
+	// find a total path passing all remaining possible victims
 	private void findPath(Structure action) {
 		List<Location> optimalPath = model.findOptimalPath();
 		List<Term> path = new LinkedList<>();
@@ -177,6 +203,7 @@ public class RescueEnv extends Environment {
 		addPercept(DOCTOR, ASSyntax.createLiteral("total_path", lt));
 	}
 
+	// once doctor find where scout is, prepare for path finding
 	private void determine(Structure action) throws NoValueException {
 		int x = (int) ((NumberTerm) action.getTerm(0)).solve();
 		int y = (int) ((NumberTerm) action.getTerm(1)).solve();
@@ -190,6 +217,7 @@ public class RescueEnv extends Environment {
 		addPercept(DOCTOR, ASSyntax.createLiteral("pos", action.getTerm(0), action.getTerm(1)));
 	}
 
+	// detect obstacle and victim data from robot
 	private void detect(Structure action) {
 		boolean[] obsData = robot.detectObstacle();
 		int vicData = robot.detectVictim();
@@ -201,6 +229,7 @@ public class RescueEnv extends Environment {
 		addPercept(SCOUT, ASSyntax.createLiteral("data", l, r, f, v));
 	}
 
+	// move to a given side, in ['L', 'R', 'F']
 	private void move(Structure action) throws NoValueException {
 		Term left = null, right = null, front = null;
 		try {
@@ -228,6 +257,7 @@ public class RescueEnv extends Environment {
 		putRemain(remain);
 	}
 
+	// travel to a given location
 	private void travel(Structure action) throws NoValueException {
 		int x = (int) ((NumberTerm) action.getTerm(0)).solve();
 		int y = (int) ((NumberTerm) action.getTerm(1)).solve();
@@ -237,16 +267,29 @@ public class RescueEnv extends Environment {
 		logger.info(robot.toString());
 	}
 
+	// check whether there is a victim or not, if there is, rescue him
 	private void checkVic(Structure action) throws NoValueException {
-		if (action.getArity() == 2) {
+		int numRescued = 0;
+		Literal rescued = getPercept(DOCTOR, "vic_rescued");
+		if (rescued != null) {
+			numRescued = (int) ((NumberTerm) rescued.getTerm(0)).solve();
+			removePerceptsByUnif(DOCTOR, Literal.parseLiteral("vic_rescued(_)"));
+		}
+		int vic = 0;
+		if (action.getArity() == 1) { // localization
+			vic = (int) ((NumberTerm) action.getTerm(0)).solve();
+			model.checkAndRescue(vic);
+		} else if (action.getArity() == 2) { // path finding
 			int x = (int) ((NumberTerm) action.getTerm(0)).solve();
 			int y = (int) ((NumberTerm) action.getTerm(1)).solve();
-			int vic = robot.detectVictim();
+			vic = robot.detectVictim();
 			model.checkAndRescue(new Location(x, y), vic);
-		} else if (action.getArity() == 1) {
-			int v = (int) ((NumberTerm) action.getTerm(0)).solve();
-			model.checkAndRescue(v);
 		}
+		if (vic > ArenaModel.VIC_POS) {
+			numRescued++;
+		}
+		NumberTerm num = ASSyntax.createNumber(numRescued);
+		addPercept(DOCTOR, ASSyntax.createLiteral("vic_rescued", num));
 	}
 
 }
