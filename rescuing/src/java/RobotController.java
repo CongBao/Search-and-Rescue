@@ -62,8 +62,8 @@ public class RobotController {
      * @return colour
      * @throws IOException throw it
      */
-    public int getColour() throws IOException {
-        return Integer.parseInt(sendToRobot("COLOUR"));
+    public double getColour() throws IOException {
+        return Double.parseDouble(sendToRobot("COLOUR"));
     }
     
     /**
@@ -73,5 +73,14 @@ public class RobotController {
      */
     public double getDistance() throws IOException {
         return Double.parseDouble(sendToRobot("DISTANCE"));
+    }
+    
+    /**
+     * Rotate the distance sensor
+     * @param angle angle or rotation
+     * @throws IOException throw it
+     */
+    public void rotateSensor(int angle) throws IOException {
+    	sendToRobot("DSENSOR:" + String.valueOf(angle));
     }
 }
