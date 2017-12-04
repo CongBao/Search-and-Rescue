@@ -9,10 +9,12 @@
     - [X] Add a method to obtain percepts.
     - [X] Beliefs will not fire if percepts with same content added.
 2. LeJOS:
-    - [ ] Create some basic classes and methods.
+    - [X] Create some basic classes and methods.
     - [ ] Update arena information on LCD screen.
+    - [ ] Build an emulator.
 3. Communication:
     - [X] Add interfaces on both Jason side and LeJOS side.
+    - [ ] Test communication with emulator.
 
 ## TODO (30 Nov):
 1. Jason:

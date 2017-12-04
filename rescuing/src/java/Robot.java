@@ -16,6 +16,16 @@ public interface Robot {
 	void updateArenaInfo(int[][] data);
 
 	/**
+	 * Update the position and orientation information of robot.
+	 *
+	 * @param loc
+	 *            the {@link Location} of robot
+	 * @param dir
+	 *            the orientation of robot
+	 */
+	void updateRobotInfo(Location loc, int[] dir);
+
+	/**
 	 * Whether there is an obstacle at [left, right, front] or not.
 	 *
 	 * @return obstacle data of [left, right, front]

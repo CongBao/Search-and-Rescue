@@ -125,6 +125,10 @@ public class Emulator implements Robot {
 		}
 	}
 
+	@Override
+	public void updateRobotInfo(Location loc, int[] dir) {
+	}
+
 	/**
 	 * Emulate the distance data return by robot.
 	 *

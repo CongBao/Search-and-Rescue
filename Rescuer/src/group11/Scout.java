@@ -17,6 +17,8 @@ public class Scout implements Robot {
 
 	private GraphicsLCD lcd;
 
+	private boolean firstDetect = true;
+
 	public Scout() {
 		arena = new Arena();
 
@@ -117,15 +119,37 @@ public class Scout implements Robot {
 		return dis;
 	}
 
+	public void travelAnUnit(boolean forth) {
+		// TODO
+	}
+
 	@Override
 	public void updateArenaInfo(int[][] data) {
-		// TODO Auto-generated method stub
+		arena.setMap(data);
+	}
+
+	@Override
+	public void updateRobotInfo(int[] pos, int[] dir) {
+		arena.setAgtPos(pos);
+		arena.setAgtDir(dir);
 	}
 
 	@Override
 	public boolean[] detectObstacle() {
-		// TODO Auto-generated method stub
-		return null;
+		final double threshold = 0.3 * (Arena.UNIT_DEPTH + Arena.UNIT_WIDTH);
+		boolean[] obsData = new boolean[4];
+		for (int i = 0; i < 3; i++) {
+			obsData[i] = scanAround()[i] < threshold;
+		}
+		if (firstDetect) {
+			pilot.rotate(-90); // turn left
+			obsData[3] = scanFor('L') < threshold;
+			firstDetect = false;
+			pilot.rotate(90); // turn right
+		} else {
+			obsData[3] = false;
+		}
+		return obsData;
 	}
 
 	@Override
@@ -136,12 +160,58 @@ public class Scout implements Robot {
 
 	@Override
 	public void moveTo(char side) {
-		// TODO Auto-generated method stub
+		switch (side) {
+		case 'L':
+			pilot.rotate(-90);
+			break;
+		case 'R':
+			pilot.rotate(90);
+			break;
+		case 'F':
+		case 'B':
+		default:
+			break;
+		}
+		switch (side) {
+		case 'L':
+		case 'R':
+		case 'F':
+			travelAnUnit(true);
+			break;
+		case 'B':
+			travelAnUnit(false);
+			break;
+		default:
+			break;
+		}
 	}
 
 	@Override
-	public void moveTo(int[] pos) {
-		// TODO Auto-generated method stub
+	public void moveTo(int[] target) {
+		int[] pos = arena.getAgtPos();
+		int[] dir = arena.getAgtDir();
+		if (Arrays.equals(pos, Arena.UNKNOWN) || Arrays.equals(dir, Arena.UNKNOWN)) {
+			return;
+		}
+		int[] to = new int[] { target[0] - pos[0], target[1] - pos[1] };
+		if (Arrays.equals(dir, to)) {
+			moveTo('F');
+			return;
+		}
+		int sin = dir[0] * to[1] - dir[1] * to[0];
+		switch (sin) {
+		case -1:
+			moveTo('L');
+			break;
+		case 1:
+			moveTo('R');
+			break;
+		case 0:
+			moveTo('B');
+			break;
+		default:
+			break;
+		}
 	}
 
 	public static void main(String[] args) {

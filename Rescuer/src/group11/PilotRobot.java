@@ -32,7 +32,7 @@ public class PilotRobot {
 		leftSP = leftBump.getTouchMode();
 		rightSP = rightBump.getTouchMode();
 		distSP = usSensor.getDistanceMode();
-		colourSP = cSensor.getRedMode();
+		colourSP = cSensor.getRGBMode();
 
 		leftSample = new float[leftSP.sampleSize()]; // Size is 1
 		rightSample = new float[rightSP.sampleSize()]; // Size is 1
@@ -69,9 +69,9 @@ public class PilotRobot {
 		return distSample[0] * 100; // meter -> centimeter
 	}
 
-	public float getColour() {
+	public float[] getColour() {
 		colourSP.fetchSample(colourSample, 0);
-		return colourSample[0];
+		return colourSample;
 	}
 
 	public MovePilot getPilot() {
