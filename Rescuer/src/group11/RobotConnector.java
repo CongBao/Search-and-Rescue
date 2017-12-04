@@ -7,7 +7,7 @@ import java.net.Socket;
 
 /**
  * Robot Connector
- * @author frank
+ * @author Chaoyi Han
  */
 public class RobotConnector extends Thread {
     
