@@ -1,11 +1,11 @@
-package group11;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import lejos.hardware.motor.Motor;
 
 /**
  * Robot Connector
@@ -60,6 +60,10 @@ public class RobotConnector extends Thread {
                     case "DISTANCE":
                         sendOut.println(String.valueOf(robot.getDistance()));
                         break;
+                    case "DSENSOR":
+                    	Motor.C.rotate(Integer.parseInt(parsed[1]));
+                    	sendOut.println("");
+                    	break;
                 }
                 sendOut.close();  
                 client.close();
