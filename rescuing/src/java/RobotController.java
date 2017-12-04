@@ -10,7 +10,7 @@ import java.net.Socket;
  */
 public class RobotController {
 
-    String ip;
+    private String ip;
     
     /**
      * Constructor
@@ -28,6 +28,7 @@ public class RobotController {
      */
     public void travel(double distance) throws IOException {
         Socket socket = new Socket(ip, 21900);
+        socket.setSoTimeout(20000);
         PrintStream sendOut = new PrintStream(socket.getOutputStream());
         BufferedReader recieved = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         sendOut.println("GO:" + String.valueOf(distance));
@@ -43,6 +44,7 @@ public class RobotController {
      */
     public void rotate(double angle) throws IOException {
         Socket socket = new Socket(ip, 21900);
+        socket.setSoTimeout(20000);
         PrintStream sendOut = new PrintStream(socket.getOutputStream());
         BufferedReader recieved = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         sendOut.println("TURN:" + String.valueOf(angle));
@@ -58,6 +60,7 @@ public class RobotController {
      */
     public int getColour() throws IOException {
         Socket socket = new Socket(ip, 21900);
+        socket.setSoTimeout(20000);
         PrintStream sendOut = new PrintStream(socket.getOutputStream());
         BufferedReader recieved = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         sendOut.println("COLOUR");
@@ -74,6 +77,7 @@ public class RobotController {
      */
     public double getDistance() throws IOException {
         Socket socket = new Socket(ip, 21900);
+        socket.setSoTimeout(20000);
         PrintStream sendOut = new PrintStream(socket.getOutputStream());
         BufferedReader recieved = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         sendOut.println("DISTANCE");
