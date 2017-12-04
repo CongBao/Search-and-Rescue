@@ -1,3 +1,5 @@
+package group11;
+
 import lejos.hardware.Brick;
 import lejos.hardware.BrickFinder;
 import lejos.hardware.motor.Motor;
