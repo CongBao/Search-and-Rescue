@@ -213,9 +213,12 @@ public class RescueEnv extends Environment {
 		int y = (int) ((NumberTerm) action.getTerm(1)).solve();
 		int d1 = (int) ((NumberTerm) action.getTerm(2)).solve();
 		int d2 = (int) ((NumberTerm) action.getTerm(3)).solve();
-		model.remove(ArenaModel.POS_LOC, x, y);
+		int[] pos = new int[] { x, y };
+		int[] dir = new int[] { d1, d2 };
 		view.update();
-		model.removeCheckedVic(new int[] { x, y }, new int[] { d1, d2 });
+		model.remove(ArenaModel.POS_LOC, x, y);
+		model.removeCheckedVic(pos, dir);
+		model.addVisitedCount(pos, dir);
 		putVictims();
 		model.setAgPos(ArenaModel.SCOUT, x, y);
 		addPercept(DOCTOR, ASSyntax.createLiteral("pos", action.getTerm(0), action.getTerm(1)));
@@ -256,6 +259,7 @@ public class RescueEnv extends Environment {
 		for (Map<Integer, List<Character>> record : model.encounters) {
 			record.values().iterator().next().add(side);
 		}
+		model.visited.add(side); // TODO
 		Map<Location, List<int[]>> remain = getRemain((ListTerm) action.getTerm(1));
 		remain = model.updateRemain(remain, side);
 		putRemain(remain);

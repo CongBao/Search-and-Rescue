@@ -23,6 +23,7 @@ public class Arena {
 	public static final int VIC_CRI = 0x10;
 	public static final int VIC_SER = 0x20;
 	public static final int VIC_MIN = 0x40;
+	public static final int POS_LOC = 0x80;
 
 	private int[][] map;
 

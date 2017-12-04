@@ -23,11 +23,14 @@ public class ArenaModel extends GridWorldModel {
 
 	public static final int POS_LOC = 0x80;
 
+	int[][] count;
 	List<Location> possibleVictims;
+	List<Character> visited; // TODO
 	List<Map<Integer, List<Character>>> encounters;
 
 	public ArenaModel() {
 		super(WIDTH, HEIGHT, 2);
+		count = new int[width][height];
 		// walls
 		addWall(0, 0, WIDTH - 1, 0);
 		addWall(0, 0, 0, HEIGHT - 1);
@@ -50,6 +53,7 @@ public class ArenaModel extends GridWorldModel {
 		for (Location loc : possibleVictims) {
 			add(VIC_POS, loc);
 		}
+		visited = new LinkedList<>();
 		encounters = new LinkedList<>();
 	}
 
@@ -101,7 +105,6 @@ public class ArenaModel extends GridWorldModel {
 	 * @return a new map of remaining possible cells
 	 */
 	public Map<Location, List<int[]>> localize(Map<Location, List<int[]>> remain, boolean[] obsData, int vicData) {
-		// TODO sometimes result in 0
 		for (Location pos : remain.keySet()) {
 			remove(POS_LOC, pos);
 		}
@@ -303,6 +306,10 @@ public class ArenaModel extends GridWorldModel {
 				}
 			}
 		}
+	}
+
+	public void addVisitedCount(int[] pos, int[] dir) {
+		// TODO
 	}
 
 }
