@@ -1,5 +1,3 @@
-package group11;
-
 import lejos.hardware.Brick;
 import lejos.hardware.BrickFinder;
 import lejos.hardware.motor.Motor;
@@ -24,10 +22,10 @@ public class PilotRobot {
 	public PilotRobot() {
 		Brick myEV3 = BrickFinder.getDefault();
 
-		leftBump = new EV3TouchSensor(myEV3.getPort("S2"));
-		rightBump = new EV3TouchSensor(myEV3.getPort("S1"));
+		leftBump = new EV3TouchSensor(myEV3.getPort("S1"));
+		rightBump = new EV3TouchSensor(myEV3.getPort("S4"));
 		usSensor = new EV3UltrasonicSensor(myEV3.getPort("S3"));
-		cSensor = new EV3ColorSensor(myEV3.getPort("S4"));
+		cSensor = new EV3ColorSensor(myEV3.getPort("S2"));
 
 		leftSP = leftBump.getTouchMode();
 		rightSP = rightBump.getTouchMode();
@@ -40,7 +38,7 @@ public class PilotRobot {
 		colourSample = new float[colourSP.sampleSize()]; // Size is 1 for Red Mode, 3 for RGB Mode
 
 		Wheel leftWheel = WheeledChassis.modelWheel(Motor.B, 3.3).offset(-9.65);
-		Wheel rightWheel = WheeledChassis.modelWheel(Motor.C, 3.3).offset(9.65);
+		Wheel rightWheel = WheeledChassis.modelWheel(Motor.D, 3.3).offset(9.65);
 		Chassis myChassis = new WheeledChassis(new Wheel[] { leftWheel, rightWheel }, WheeledChassis.TYPE_DIFFERENTIAL);
 
 		pilot = new MovePilot(myChassis);
