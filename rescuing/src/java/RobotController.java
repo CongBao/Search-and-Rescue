@@ -22,19 +22,30 @@ public class RobotController {
     }
     
     /**
+     * Send to the robot.
+     * @param info the text want to send
+     * @return the data back
+     * @throws throw it
+    */
+    private String sendToRobot(String info) throws IOException {
+        Socket socket = new Socket(ip, 21900);
+        socket.setSoTimeout(20000);
+        PrintStream sendOut = new PrintStream(socket.getOutputStream());
+        BufferedReader recieved = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        sendOut.println(info);
+        String result = recieved.readLine();
+        sendOut.close();
+        recieved.close();
+        return result;
+    }
+    
+    /**
      * Let the robot travels.
      * @param distance how long?
      * @throws IOException throw it
      */
     public void travel(double distance) throws IOException {
-        Socket socket = new Socket(ip, 21900);
-        socket.setSoTimeout(20000);
-        PrintStream sendOut = new PrintStream(socket.getOutputStream());
-        BufferedReader recieved = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        sendOut.println("GO:" + String.valueOf(distance));
-        recieved.readLine();
-        sendOut.close();
-        recieved.close();
+        sendToRobot("GO:" + String.valueOf(distance));
     }
     
     /**
@@ -43,14 +54,7 @@ public class RobotController {
      * @throws IOException throw it
      */
     public void rotate(double angle) throws IOException {
-        Socket socket = new Socket(ip, 21900);
-        socket.setSoTimeout(20000);
-        PrintStream sendOut = new PrintStream(socket.getOutputStream());
-        BufferedReader recieved = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        sendOut.println("TURN:" + String.valueOf(angle));
-        recieved.readLine();
-        sendOut.close();
-        recieved.close();
+        sendToRobot("TURN:" + String.valueOf(angle));
     }
     
     /**
@@ -59,15 +63,7 @@ public class RobotController {
      * @throws IOException throw it
      */
     public int getColour() throws IOException {
-        Socket socket = new Socket(ip, 21900);
-        socket.setSoTimeout(20000);
-        PrintStream sendOut = new PrintStream(socket.getOutputStream());
-        BufferedReader recieved = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        sendOut.println("COLOUR");
-        String result = recieved.readLine();
-        sendOut.close();
-        recieved.close();
-        return Integer.parseInt(result);
+        return Integer.parseInt(sendToRobot("COLOUR"));
     }
     
     /**
@@ -76,14 +72,6 @@ public class RobotController {
      * @throws IOException throw it
      */
     public double getDistance() throws IOException {
-        Socket socket = new Socket(ip, 21900);
-        socket.setSoTimeout(20000);
-        PrintStream sendOut = new PrintStream(socket.getOutputStream());
-        BufferedReader recieved = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        sendOut.println("DISTANCE");
-        String result = recieved.readLine();
-        sendOut.close();
-        recieved.close();
-        return Integer.parseInt(result);
+        return Double.parseDouble(sendToRobot("DISTANCE"));
     }
 }
