@@ -112,10 +112,11 @@ public class ArenaModel extends GridWorldModel {
 		for (Location pos : remain.keySet()) {
 			List<int[]> posDir = new LinkedList<>();
 			for (int[] dir : remain.get(pos)) {
-				boolean[] real = new boolean[3];
+				boolean[] real = new boolean[4];
 				real[0] = !isFreeOfObstacle(pos.x + dir[1], pos.y - dir[0]);
 				real[1] = !isFreeOfObstacle(pos.x - dir[1], pos.y + dir[0]);
 				real[2] = !isFreeOfObstacle(pos.x + dir[0], pos.y + dir[1]);
+				real[3] = !isFreeOfObstacle(pos.x - dir[0], pos.y - dir[1]);
 				if (Arrays.equals(obsData, real) && getObject(pos) == vicData) {
 					posDir.add(dir);
 				}

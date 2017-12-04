@@ -183,12 +183,12 @@ public class RescueEnv extends Environment {
 
 	// reduce the possible positions in remain percept
 	private void localize(Structure action) throws NoValueException {
-		Map<Location, List<int[]>> remain = getRemain((ListTerm) action.getTerm(4));
-		boolean[] obsData = new boolean[3];
-		for (int i = 0; i < 3; i++) {
+		Map<Location, List<int[]>> remain = getRemain((ListTerm) action.getTerm(5));
+		boolean[] obsData = new boolean[4];
+		for (int i = 0; i < 4; i++) {
 			obsData[i] = 1 == (int) ((NumberTerm) action.getTerm(i)).solve();
 		}
-		int vicData = (int) ((NumberTerm) action.getTerm(3)).solve();
+		int vicData = (int) ((NumberTerm) action.getTerm(4)).solve();
 		remain = model.localize(remain, obsData, vicData > 0 ? ArenaModel.VIC_POS : 0);
 		putRemain(remain);
 	}
@@ -231,9 +231,10 @@ public class RescueEnv extends Environment {
 		NumberTerm l = ASSyntax.createNumber(obsData[0] ? 1 : 0);
 		NumberTerm r = ASSyntax.createNumber(obsData[1] ? 1 : 0);
 		NumberTerm f = ASSyntax.createNumber(obsData[2] ? 1 : 0);
+		NumberTerm b = ASSyntax.createNumber(obsData[3] ? 1 : 0);
 		NumberTerm v = ASSyntax.createNumber(vicData);
-		removePerceptsByUnif(SCOUT, Literal.parseLiteral("data(_, _, _, _, _)"));
-		addPercept(SCOUT, ASSyntax.createLiteral("data", l, r, f, v, getTimeStamp()));
+		removePerceptsByUnif(SCOUT, Literal.parseLiteral("data(_, _, _, _, _, _)"));
+		addPercept(SCOUT, ASSyntax.createLiteral("data", l, r, f, b, v, getTimeStamp()));
 	}
 
 	// move to a given side, in [left, right, front]

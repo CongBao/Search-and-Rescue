@@ -19,44 +19,44 @@ vic_rescued(0).
 /* Localization */
 
 // Once scout send its detected data, use these data to reduce the number of possible cells we are located in
-// (Left, Right, Front, Victim)
-+!data(L, R, F, V)[source(scout)] :  remain(M) & .length(M, Len) & Len > 1
-                                  <- .print("There are ", Len, " possible status(es) left.");
-                                     if (V > 0) {
-                                         .print("Please check the victim at your place.");
-                                         .send(scout, achieve, check(V));
-                                         .wait(500);
-                                     };
-                                     localize(L, R, F, V, M); // -> [doctor] +remain([...])
-                                     .wait(1000);
-                                     ?remain(N);
-                                     !explore(L, R, F, N).
+// (Left, Right, Front, Back, Victim)
++!data(L, R, F, B, V)[source(scout)] :  remain(M) & .length(M, Len) & Len > 1
+                                     <- .print("There are ", Len, " possible status(es) left.");
+                                        if (V > 0) {
+                                            .print("Please check the victim at your place.");
+                                            .send(scout, achieve, check(V));
+                                            .wait(500);
+                                        };
+                                        localize(L, R, F, B, V, M); // -> [doctor] +remain([...])
+                                        .wait(1000);
+                                        ?remain(N);
+                                        !explore(L, R, F, B, N).
 
 // If there is only one possible cell in list, that's where the scout located  
 // (_, _, _, reMain)            
-+!explore(_, _, _, M)[source(self)] :  .length(M, Len) & Len == 1
-                                    <- .nth(0, M, pair(pos(X, Y), dir(D1, D2)));
-                                       .print("Pos: (", X, ",", Y, "), Dir: (", D1, ",", D2, ")");
-                                       determine(X, Y, D1, D2). // -> [doctor] +pos(X, Y)
++!explore(_, _, _, _, M)[source(self)] :  .length(M, Len) & Len == 1
+                                       <- .nth(0, M, pair(pos(X, Y), dir(D1, D2)));
+                                          .print("Pos: (", X, ",", Y, "), Dir: (", D1, ",", D2, ")");
+                                          determine(X, Y, D1, D2). // -> [doctor] +pos(X, Y)
 
 // If there are more than one possible cells in list, choose one side in the priority of front > left > right,
 // and ask scout to explore further in this side
 // (Left, Right, Front, reMain)
-+!explore(L, R, F, M)[source(self)] :  .length(M, Len) & Len > 1
-                                    <- if (F == 0) {
-                                           .print("Please try to explore your front cell.");
-                                           .send(scout, achieve, explore(front, M));
-                                       } else {
-                                           if (L == 0) {
-                                               .print("Please try to explore your left cell.");
-                                               .send(scout, achieve, explore(left, M));
-                                           } else {
-                                               if (R == 0) {
-                                                   .print("Please try to explore your right cell.");
-                                                   .send(scout, achieve, explore(right, M));
-                                               };
-                                           };
-                                       }.
++!explore(L, R, F, B, M)[source(self)] :  .length(M, Len) & Len > 1
+                                       <- if (F == 0) {
+                                              .print("Please try to explore your front cell.");
+                                              .send(scout, achieve, explore(front, M));
+                                          } else {
+                                              if (L == 0) {
+                                                  .print("Please try to explore your left cell.");
+                                                  .send(scout, achieve, explore(left, M));
+                                              } else {
+                                                  if (R == 0) {
+                                                      .print("Please try to explore your right cell.");
+                                                      .send(scout, achieve, explore(right, M));
+                                                  };
+                                              };
+                                          }.
 
 /* Path finding */
 

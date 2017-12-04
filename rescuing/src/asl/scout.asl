@@ -10,13 +10,13 @@
 
 // Detect surroundings
 +!detect :  true
-         <- detect. // -> [scout] +data(L, R, F, V, T)
+         <- detect. // -> [scout] +data(L, R, F, B, V, T)
 
 // After data of obstacles and victims are collected, send them to doctor
-// (Left, Right, Front, Victim, _)
-+data(L, R, F, V, _)[source(percept)] :  true
-                                      <- .print("Obstacles: [", L, ",", R, ",", F, "]; Victim: ", V);
-                                         .send(doctor, achieve, data(L, R, F, V)).
+// (Left, Right, Front, Back, Victim, _)
++data(L, R, F, B, V, _)[source(percept)] :  true
+                                         <- .print("Obstacles: [", L, ",", R, ",", F, ",", B, "]; Victim: ", V);
+                                            .send(doctor, achieve, data(L, R, F, B, V)).
 
 // Explore one side following doctor's instructions
 // (Side, reMain)

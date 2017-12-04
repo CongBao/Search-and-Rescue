@@ -5,6 +5,7 @@
 
 ## TODO (02 Dec):
 1. Jason:
+    - [X] Take use of the back cell of robot.
     - [X] Add a method to obtain percepts.
     - [X] Beliefs will not fire if percepts with same content added.
 2. LeJOS:

@@ -26,6 +26,8 @@ public class Emulator implements Robot {
 	private int posVicCount = 2;
 	private int actVicCount = 3;
 
+	private boolean firstDetect = true;
+
 	/**
 	 * The constructor.
 	 *
@@ -84,7 +86,34 @@ public class Emulator implements Robot {
 	}
 
 	/**
-	 * Print the data in binary format, which will shown on LCD screen in real robot.
+	 * Emulate the delay of robot actions.
+	 *
+	 * @param action
+	 *            the name of action
+	 */
+	public void delay(String action) {
+		try {
+			switch (action) {
+			case "move":
+				Thread.sleep(moveDelay);
+				break;
+			case "turn":
+				Thread.sleep(turnDelay);
+				break;
+			case "scan":
+				Thread.sleep(scanDelay);
+				break;
+			default:
+				break;
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Print the data in binary format, which will shown on LCD screen in real
+	 * robot.
 	 */
 	@Override
 	public void updateArenaInfo(int[][] data) {
@@ -103,15 +132,18 @@ public class Emulator implements Robot {
 	 */
 	@Override
 	public boolean[] detectObstacle() {
-		try {
-			Thread.sleep(scanDelay);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		boolean[] occupies = new boolean[3];
+		delay("scan");
+		boolean[] occupies = new boolean[4];
 		occupies[0] = !model.isFreeOfObstacle(pos[0] + dir[1], pos[1] - dir[0]);
 		occupies[1] = !model.isFreeOfObstacle(pos[0] - dir[1], pos[1] + dir[0]);
 		occupies[2] = !model.isFreeOfObstacle(pos[0] + dir[0], pos[1] + dir[1]);
+		if (firstDetect) {
+			delay("turn");
+			occupies[3] = !model.isFreeOfObstacle(pos[0] - dir[0], pos[1] - dir[1]);
+			firstDetect = false;
+		} else {
+			occupies[3] = false;
+		}
 		return occupies;
 	}
 
@@ -160,21 +192,13 @@ public class Emulator implements Robot {
 		switch (side) {
 		case 'L':
 		case 'R':
-			try {
-				Thread.sleep(turnDelay);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			delay("turn");
 			break;
 		default:
 			break;
 		}
 		pos = new int[] { pos[0] + dir[0], pos[1] + dir[1] };
-		try {
-			Thread.sleep(moveDelay);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		delay("move");
 	}
 
 	/**
