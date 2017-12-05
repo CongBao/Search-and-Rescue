@@ -2,6 +2,7 @@ package group11;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -36,7 +37,7 @@ public class RemotePC {
 		}
 	}
 
-	public synchronized void listen() throws IOException {
+	public synchronized void listen() throws IOException, EOFException {
 		while (socket.isConnected() && !socket.isClosed()) {
 			String request = in.readUTF();
 			if (request != null) {

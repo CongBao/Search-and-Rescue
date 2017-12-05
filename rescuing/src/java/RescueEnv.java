@@ -40,8 +40,13 @@ public class RescueEnv extends Environment {
 		model.setView(view);
 		initRemain();
 
-		robot = new Emulator(model); // TODO change to real robot
-		logger.info(robot.toString());
+		robot = new RemoteRobot(10000);
+	}
+
+	@Override
+	public void stop() {
+		((RemoteRobot) robot).closeServer();
+		super.stop();
 	}
 
 	/**
@@ -256,7 +261,6 @@ public class RescueEnv extends Environment {
 			side = 'F';
 		}
 		robot.moveTo(side);
-		logger.info(robot.toString());
 		for (Map<Integer, List<Character>> record : model.encounters) {
 			record.values().iterator().next().add(side);
 		}
@@ -277,7 +281,6 @@ public class RescueEnv extends Environment {
 		robot.moveTo(target);
 		removePerceptsByUnif(SCOUT, Literal.parseLiteral("at(_, _, _)"));
 		addPercept(SCOUT, ASSyntax.createLiteral("at", action.getTerm(0), action.getTerm(1), getTimeStamp()));
-		logger.info(robot.toString());
 	}
 
 	// check whether there is a victim or not, if there is, rescue him

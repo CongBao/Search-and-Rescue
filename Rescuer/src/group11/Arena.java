@@ -16,7 +16,7 @@ public class Arena {
 
 	public static final int[] UNKNOWN = new int[] { -1, -1 };
 
-	public static final int EMPTY = 0x00;
+	public static final int CLEAN = 0x00;
 	public static final int AGENT = 0x02;
 	public static final int OBSTACLE = 0x04;
 	public static final int VIC_POS = 0x08;

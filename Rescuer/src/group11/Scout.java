@@ -1,5 +1,6 @@
 package group11;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import lejos.hardware.Button;
@@ -214,11 +215,13 @@ public class Scout implements Robot {
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		Scout scout = new Scout();
+		RemotePC remote = new RemotePC(scout, "10.0.1.1", 10000);
 		scout.lcd.drawString("Press any button to start", 0, 0, 0);
 		Button.waitForAnyPress();
 		scout.lcd.clear();
+		remote.listen();
 	}
 
 }

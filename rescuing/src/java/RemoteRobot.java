@@ -3,6 +3,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.logging.Logger;
 
 import jason.environment.grid.Location;
 
@@ -13,10 +14,12 @@ public class RemoteRobot implements Robot {
 	private DataOutputStream out;
 	private DataInputStream in;
 
+	private Logger logger = Logger.getLogger("rescuing." + RescueEnv.class.getName());
+
 	public RemoteRobot(int port) {
 		try {
 			server = new ServerSocket(port);
-			System.out.println("Waiting for remote robot connecting...");
+			logger.info("Waiting for remote robot connecting...");
 			socket = server.accept();
 			out = new DataOutputStream(socket.getOutputStream());
 			in = new DataInputStream(socket.getInputStream());

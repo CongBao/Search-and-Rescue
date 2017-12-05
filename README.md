@@ -11,10 +11,10 @@
 2. LeJOS:
     - [X] Create some basic classes and methods.
     - [ ] Update arena information on LCD screen.
-    - [ ] Build an emulator.
+    - [X] Build an emulator.
 3. Communication:
     - [X] Add interfaces on both Jason side and LeJOS side.
-    - [ ] Test communication with emulator.
+    - [X] Test communication with emulator.
 
 ## TODO (30 Nov):
 1. Jason:
