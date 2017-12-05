@@ -24,6 +24,9 @@ public class Scout implements Robot {
 
 		robot = new PilotRobot();
 		pilot = robot.getPilot();
+		
+		RobotConnector rc = new RobotConnector(robot);
+		rc.start(); //Ready for commands from the host
 
 		lcd = LocalEV3.get().getGraphicsLCD();
 
