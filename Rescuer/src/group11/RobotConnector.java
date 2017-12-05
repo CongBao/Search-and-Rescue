@@ -9,6 +9,11 @@ import lejos.hardware.motor.Motor;
 
 /**
  * Robot Connector
+ * 
+ * HOW TO USE:
+ * RobotConnector rc = new RobotConnector(robot);
+ * rc.start(); //all done
+ * 
  * @author Chaoyi Han
  */
 public class RobotConnector extends Thread {
