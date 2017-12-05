@@ -26,9 +26,9 @@ public interface Robot {
 	void updateRobotInfo(Location loc, int[] dir);
 
 	/**
-	 * Whether there is an obstacle at [left, right, front] or not.
+	 * Whether there is an obstacle at [left, right, front, back] or not.
 	 *
-	 * @return obstacle data of [left, right, front]
+	 * @return obstacle data of [left, right, front, back]
 	 */
 	boolean[] detectObstacle();
 
