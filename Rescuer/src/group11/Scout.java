@@ -7,6 +7,7 @@ import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.GraphicsLCD;
 import lejos.hardware.motor.Motor;
 import lejos.robotics.navigation.MovePilot;
+import lejos.robotics.Color;
 
 public class Scout implements Robot {
 
@@ -122,8 +123,44 @@ public class Scout implements Robot {
 		return dis;
 	}
 
+	/**
+	 * Travel 1 grid unit
+	 *
+	 * @param forth
+	 *            specifies forward direction (true) or backward
+	 */
 	public void travelAnUnit(boolean forth) {
-		// TODO
+		// Move forward/backward until we reach the black grid boundary
+		// Then move forward half a grid cell, or backward ? a grid cell
+		if(forth)
+			pilot.getPilot().forward();
+		else
+			pilot.getPilot().backward();
+		
+		while(pilot.getColour() != Color.BLACK){
+			// Wait until we reach the boundary...
+		}
+		
+		pilot.getPilot().stop();
+		
+		// Now move forward/backward half a cell (depends on heading)
+		// TODO: width/depth depending on heading, exact distances to move,
+		//       needs testing with robot
+		
+		double distance;
+
+		if(forth)
+			distance = Arena.UNIT_WIDTH / 2;
+		else
+			distance = -(Arena.UNIT_WIDTH / 4);
+		
+		pilot.getPilot().travel(distance);
+		
+		while(pilot.getPilot().isMoving()){
+			// Wait for completion
+		}
+		
+		pilot.getPilot().stop();
 	}
 
 	@Override
@@ -155,10 +192,28 @@ public class Scout implements Robot {
 		return obsData;
 	}
 
+	/**
+	 * Use colour sensor to detect victim in current cell
+	 *
+	 * @return severity ID for current victim
+	 */
 	@Override
 	public int detectVictim() {
-		// TODO Auto-generated method stub
-		return 0;
+		int colour = pilot.getColour();
+		
+		switch(colour){
+			case Color.RED:
+				return Arena.VIC_CRI;
+				
+			case Color.BLUE:
+				return Arena.VIC_SER;
+				
+			case Color.GREEN:
+				return Arena.VIC_MIN;
+				
+			default:
+				return Arena.EMPTY;
+		}
 	}
 
 	@Override
