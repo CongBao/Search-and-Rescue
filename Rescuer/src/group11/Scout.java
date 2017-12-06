@@ -7,6 +7,7 @@ import lejos.hardware.Button;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.GraphicsLCD;
 import lejos.hardware.motor.Motor;
+import lejos.robotics.localization.OdometryPoseProvider;
 import lejos.robotics.navigation.MovePilot;
 
 public class Scout implements Robot {
@@ -15,16 +16,19 @@ public class Scout implements Robot {
 
 	private PilotRobot robot;
 	private MovePilot pilot;
+	private OdometryPoseProvider pose;
 
 	private GraphicsLCD lcd;
 
 	private boolean firstDetect = true;
+	private boolean determined = false;
 
 	public Scout() {
 		arena = new Arena();
 
 		robot = new PilotRobot();
 		pilot = robot.getPilot();
+		pose = new OdometryPoseProvider(pilot);
 
 		lcd = LocalEV3.get().getGraphicsLCD();
 
@@ -45,6 +49,14 @@ public class Scout implements Robot {
 				}
 			}
 		}).start();
+	}
+
+	public void drawNeighbor(boolean[] obsData) {
+		//
+	}
+
+	public void drawMap() {
+		//
 	}
 
 	/**
@@ -94,14 +106,14 @@ public class Scout implements Robot {
 		float dis = 0.0f;
 		switch (dir) {
 		case 'L':
-			Motor.A.rotate(90);
+			Motor.C.rotate(90);
 			dis = scan(7, 5, 100);
-			Motor.A.rotate(-90);
+			Motor.C.rotate(-90);
 			break;
 		case 'R':
-			Motor.A.rotate(-90);
+			Motor.C.rotate(-90);
 			dis = scan(7, 5, 100);
-			Motor.A.rotate(90);
+			Motor.C.rotate(90);
 			break;
 		case 'F':
 			dis = scan(7, 5, 100);
@@ -121,7 +133,22 @@ public class Scout implements Robot {
 	}
 
 	public void travelAnUnit(boolean forth) {
-		// TODO
+		if (determined) {
+			int[] pos = arena.getAgtPos();
+			int[] dir = arena.getAgtDir();
+			if (dir[0] == 0) {
+				int[] newPos = new int[] { pos[0], pos[1] + dir[1] };
+				pilot.travel(Arena.UNIT_DEPTH);
+				arena.setAgtPos(newPos);
+			} else if (dir[1] == 0) {
+				int[] newPos = new int[] { pos[0] + dir[0], pos[1] };
+				pilot.travel(Arena.UNIT_WIDTH);
+				arena.setAgtPos(newPos);
+			}
+		} else {
+			double dis = 0.5 * (Arena.UNIT_DEPTH + Arena.UNIT_WIDTH); // TODO
+			pilot.travel(dis);
+		}
 	}
 
 	@Override
@@ -133,6 +160,7 @@ public class Scout implements Robot {
 	public void updateRobotInfo(int[] pos, int[] dir) {
 		arena.setAgtPos(pos);
 		arena.setAgtDir(dir);
+		determined = true;
 	}
 
 	@Override
@@ -153,9 +181,25 @@ public class Scout implements Robot {
 		return obsData;
 	}
 
+	/*
+	 * R 0.275, 0.049, 0.032
+	 * G 0.052, 0.108, 0.055
+	 * B 0.036, 0.124, 0.216
+	 * W 0.276, 0.226, 0.237
+	 * B 0.024, 0.026, 0.024
+	 */
 	@Override
 	public int detectVictim() {
-		// TODO Auto-generated method stub
+		float[] colorData = robot.getColour();
+		if (colorData[0] > 0.2 && colorData[1] > 0.2 && colorData[2] > 0.2) {
+			return Arena.CLEAN;
+		} else if (colorData[0] > 0.2 && colorData[1] < 0.1 && colorData[2] < 0.1) {
+			return Arena.VIC_CRI;
+		} else if (colorData[0] < 0.1 && colorData[1] > 0.1 && colorData[2] > 0.2) {
+			return Arena.VIC_SER;
+		} else if (colorData[0] < 0.1 && colorData[1] > 0.1 && colorData[2] < 0.1) {
+			return Arena.VIC_MIN;
+		}
 		return 0;
 	}
 
@@ -217,10 +261,10 @@ public class Scout implements Robot {
 
 	public static void main(String[] args) throws IOException {
 		Scout scout = new Scout();
-		RemotePC remote = new RemotePC(scout, "10.0.1.1", 10000);
 		scout.lcd.drawString("Press any button to start", 0, 0, 0);
 		Button.waitForAnyPress();
 		scout.lcd.clear();
+		RemotePC remote = new RemotePC(scout, 10000);
 		remote.listen();
 	}
 

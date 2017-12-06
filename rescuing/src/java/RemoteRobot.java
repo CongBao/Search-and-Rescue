@@ -1,7 +1,6 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Logger;
 
@@ -9,18 +8,16 @@ import jason.environment.grid.Location;
 
 public class RemoteRobot implements Robot {
 
-	private ServerSocket server;
 	private Socket socket;
 	private DataOutputStream out;
 	private DataInputStream in;
 
 	private Logger logger = Logger.getLogger("rescuing." + RescueEnv.class.getName());
 
-	public RemoteRobot(int port) {
+	public RemoteRobot(String host, int port) {
 		try {
-			server = new ServerSocket(port);
-			logger.info("Waiting for remote robot connecting...");
-			socket = server.accept();
+			socket = new Socket(host, port);
+			logger.info("Connected.");
 			out = new DataOutputStream(socket.getOutputStream());
 			in = new DataInputStream(socket.getInputStream());
 		} catch (IOException e) {
@@ -28,13 +25,12 @@ public class RemoteRobot implements Robot {
 		}
 	}
 
-	public synchronized void closeServer() {
-		if (server.isClosed()) {
+	public synchronized void close() {
+		if (socket.isClosed()) {
 			return;
 		}
 		try {
 			socket.close();
-			server.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

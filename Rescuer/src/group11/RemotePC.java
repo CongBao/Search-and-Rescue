@@ -4,21 +4,24 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 public class RemotePC {
 
 	private Robot robot;
 
+	private ServerSocket server;
 	private Socket socket;
 	private DataInputStream in;
 	private DataOutputStream out;
 
-	public RemotePC(Robot robot, String host, int port) {
+	public RemotePC(Robot robot, int port) {
 		this.robot = robot;
 		try {
-			socket = new Socket(host, port);
-			System.out.println("Connected to remote PC.");
+			server = new ServerSocket(port);
+			socket = server.accept();
+			System.out.println("Waiting for remote PC connecting...");
 			in = new DataInputStream(socket.getInputStream());
 			out = new DataOutputStream(socket.getOutputStream());
 		} catch (IOException e) {
@@ -26,7 +29,7 @@ public class RemotePC {
 		}
 	}
 
-	public synchronized void closeSocket() {
+	public synchronized void close() {
 		if (socket.isClosed()) {
 			return;
 		}

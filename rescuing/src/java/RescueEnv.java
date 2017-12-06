@@ -40,12 +40,12 @@ public class RescueEnv extends Environment {
 		model.setView(view);
 		initRemain();
 
-		robot = new RemoteRobot(10000);
+		robot = new RemoteRobot("10.0.1.1", 10000);
 	}
 
 	@Override
 	public void stop() {
-		((RemoteRobot) robot).closeServer();
+		((RemoteRobot) robot).close();
 		super.stop();
 	}
 

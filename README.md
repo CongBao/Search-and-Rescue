@@ -3,6 +3,14 @@
 
 ### Members: Samuel David Brundell, Chaoyi Han, Cong Bao
 
+## TODO (06 Dec):
+1. Jason:
+    - [ ] Path finding methods didn't invoked on real robot.
+2. LeJOS:
+    - [X] Test localization on robot.
+3. Communication:
+    - Done.
+
 ## TODO (02 Dec):
 1. Jason:
     - [X] Take use of the back cell of robot.

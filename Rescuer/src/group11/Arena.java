@@ -4,7 +4,7 @@ public class Arena {
 
 	public static final double ARENA_WIDTH = 150;
 	public static final double ARENA_DEPTH = 190;
-	public static final int WIDTH = 6;
+	public static final int WIDTH = 5; // TODO 6
 	public static final int DEPTH = 6;
 	public static final double UNIT_WIDTH = ARENA_WIDTH / WIDTH;
 	public static final double UNIT_DEPTH = ARENA_DEPTH / DEPTH;

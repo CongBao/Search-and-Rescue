@@ -11,7 +11,7 @@ import jason.environment.grid.Location;
 
 public class ArenaModel extends GridWorldModel {
 
-	public static final int WIDTH = 6 + 2;
+	public static final int WIDTH = 5 + 2; // TODO 6
 	public static final int HEIGHT = 6 + 2;
 
 	public static final int SCOUT = 0;
@@ -37,19 +37,19 @@ public class ArenaModel extends GridWorldModel {
 		addWall(0, HEIGHT - 1, WIDTH - 1, HEIGHT - 1);
 		addWall(WIDTH - 1, 0, WIDTH - 1, HEIGHT - 1);
 		// obstacles
-		add(OBSTACLE, 2, 2);
+		add(OBSTACLE, 1, 2);
+		add(OBSTACLE, 3, 2);
 		add(OBSTACLE, 2, 4);
 		add(OBSTACLE, 2, 6);
-		add(OBSTACLE, 4, 2);
-		add(OBSTACLE, 4, 4);
-		add(OBSTACLE, 6, 4);
+		add(OBSTACLE, 3, 5);
+		add(OBSTACLE, 4, 3);
 		// possible victims
 		possibleVictims = new LinkedList<>();
-		possibleVictims.add(new Location(1, 2));
+		possibleVictims.add(new Location(4, 2));
 		possibleVictims.add(new Location(2, 5));
-		possibleVictims.add(new Location(3, 4));
-		possibleVictims.add(new Location(4, 3));
-		possibleVictims.add(new Location(5, 5));
+		possibleVictims.add(new Location(4, 6));
+		possibleVictims.add(new Location(1, 1));
+		possibleVictims.add(new Location(5, 6));
 		for (Location loc : possibleVictims) {
 			add(VIC_POS, loc);
 		}

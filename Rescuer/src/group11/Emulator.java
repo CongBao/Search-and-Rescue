@@ -196,12 +196,12 @@ public class Emulator implements Robot {
 	}
 
 	public static void main(String[] args) {
-		RemotePC remotePC = new RemotePC(new Emulator(), "127.0.0.1", 10000);
+		RemotePC remotePC = new RemotePC(new Emulator(), 10000);
 		try {
 			remotePC.listen();
 		} catch (EOFException eofe) {
 			System.out.println("Complete.");
-			remotePC.closeSocket();
+			remotePC.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
