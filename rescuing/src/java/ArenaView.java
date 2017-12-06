@@ -16,7 +16,7 @@ public class ArenaView extends GridWorldView {
 	Map<Location, List<int[]>> remain; // used for draw possible location and heading
 
 	public ArenaView(ArenaModel model) {
-		super(model, "Arena Model", 900);
+		super(model, "Arena Model", 700);
 		defaultFont = new Font("Consolas", Font.BOLD | Font.ITALIC, 20);
 		setVisible(true);
 		repaint();

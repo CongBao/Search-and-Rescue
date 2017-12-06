@@ -16,17 +16,19 @@ public class Emulator implements Robot {
 	private int[] pos;
 	private int[] dir;
 
-	private long moveDelay = 400L;
-	private long turnDelay = 100L;
-	private long scanDelay = 200L;
+	private long moveDelay = 1000L;
+	private long turnDelay = 1000L;
+	private long scanDelay = 2000L;
 
 	private int posVicCount = 2;
 	private int actVicCount = 3;
 
 	private boolean firstDetect = true;
+	private boolean determined = false;
 
 	public Emulator() {
 		random = new Random(System.currentTimeMillis());
+		arena = new Arena();
 		initMap();
 		initRobot();
 	}
@@ -41,16 +43,16 @@ public class Emulator implements Robot {
 			map[0][i] = Arena.OBSTACLE;
 			map[Arena.WIDTH + 1][i] = Arena.OBSTACLE;
 		}
-		map[2][2] =  Arena.OBSTACLE;
+		map[1][2] =  Arena.OBSTACLE;
 		map[2][4] =  Arena.OBSTACLE;
 		map[2][6] =  Arena.OBSTACLE;
-		map[4][2] =  Arena.OBSTACLE;
-		map[4][4] =  Arena.OBSTACLE;
-		map[6][4] =  Arena.OBSTACLE;
-		map[1][2] =  Arena.VIC_POS;
+		map[3][2] =  Arena.OBSTACLE;
+		map[3][5] =  Arena.OBSTACLE;
+		map[4][3] =  Arena.OBSTACLE;
+		map[1][1] =  Arena.VIC_POS;
 		map[2][5] =  Arena.VIC_POS;
-		map[3][4] =  Arena.VIC_POS;
-		map[4][3] =  Arena.VIC_POS;
+		map[4][2] =  Arena.VIC_POS;
+		map[4][6] =  Arena.VIC_POS;
 		map[5][5] =  Arena.VIC_POS;
 	}
 
@@ -101,6 +103,21 @@ public class Emulator implements Robot {
 		}
 	}
 
+	public void travelAnUnit(boolean forth) {
+		if (determined) {
+			int[] pos = arena.getAgtPos();
+			int[] dir = arena.getAgtDir();
+			int[] newPos = new int[] { pos[0], pos[1] + dir[1] };
+			newPos = new int[] { pos[0] + dir[0] * (forth ? 1 : -1), pos[1] + dir[1] * (forth ? 1 : -1) };
+			arena.setAgtPos(newPos);
+			this.pos = newPos;
+		} else {
+			pos = new int[] { pos[0] + dir[0] * (forth ? 1 : -1), pos[1] + dir[1] * (forth ? 1 : -1) };
+		}
+		delay("move");
+		System.out.println(toString());
+	}
+
 	@Override
 	public void updateArenaInfo(int[][] data) {
 		arena.setMap(data);
@@ -110,6 +127,7 @@ public class Emulator implements Robot {
 	public void updateRobotInfo(int[] pos, int[] dir) {
 		arena.setAgtPos(pos);
 		arena.setAgtDir(dir);
+		determined = true;
 	}
 
 	@Override
@@ -148,15 +166,18 @@ public class Emulator implements Robot {
 		switch (side) {
 		case 'L':
 			dir = new int[] { dir[1], -dir[0] };
+			if (determined) {
+				arena.setAgtDir(dir);
+			}
 			break;
 		case 'R':
 			dir = new int[] { -dir[1], dir[0] };
+			if (determined) {
+				arena.setAgtDir(dir);
+			}
 			break;
 		case 'F':
-			break;
 		case 'B':
-			dir = new int[] { -dir[0], -dir[1] };
-			break;
 		default:
 			break;
 		}
@@ -164,17 +185,25 @@ public class Emulator implements Robot {
 		case 'L':
 		case 'R':
 			delay("turn");
+		case 'F':
+			travelAnUnit(true);
+			break;
+		case 'B':
+			travelAnUnit(false);
 			break;
 		default:
 			break;
 		}
-		pos = new int[] { pos[0] + dir[0], pos[1] + dir[1] };
-		delay("move");
 	}
 
 	@Override
-	public void moveTo(int[] loc) {
-		int[] to = new int[] { loc[0] - pos[0], loc[1] - pos[1] };
+	public void moveTo(int[] target) {
+		int[] pos = arena.getAgtPos();
+		int[] dir = arena.getAgtDir();
+		if (Arrays.equals(pos, Arena.UNKNOWN) || Arrays.equals(dir, Arena.UNKNOWN)) {
+			return;
+		}
+		int[] to = new int[] { target[0] - pos[0], target[1] - pos[1] };
 		if (Arrays.equals(dir, to)) {
 			moveTo('F');
 			return;
@@ -195,8 +224,15 @@ public class Emulator implements Robot {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "[Emulator Info] Pos: (" + pos[0] + ", " + pos[1] + "), Dir: (" + dir[0] + ", " + dir[1] + ")";
+	}
+
 	public static void main(String[] args) {
+		System.out.println("Waiting for PC connecting...");
 		RemotePC remotePC = new RemotePC(new Emulator(), 10000);
+		System.out.println("Connected.");
 		try {
 			remotePC.listen();
 		} catch (EOFException eofe) {

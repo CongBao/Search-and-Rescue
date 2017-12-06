@@ -21,7 +21,6 @@ public class RemotePC {
 		try {
 			server = new ServerSocket(port);
 			socket = server.accept();
-			System.out.println("Waiting for remote PC connecting...");
 			in = new DataInputStream(socket.getInputStream());
 			out = new DataOutputStream(socket.getOutputStream());
 		} catch (IOException e) {
@@ -40,7 +39,7 @@ public class RemotePC {
 		}
 	}
 
-	public synchronized void listen() throws IOException, EOFException {
+	public void listen() throws IOException, EOFException {
 		while (socket.isConnected() && !socket.isClosed()) {
 			String request = in.readUTF();
 			if (request != null) {

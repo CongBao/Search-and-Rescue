@@ -5,7 +5,7 @@
 
 ## TODO (06 Dec):
 1. Jason:
-    - [ ] Path finding methods didn't invoked on real robot.
+    - [X] Path finding methods didn't invoked on real robot.
 2. LeJOS:
     - [X] Test localization on robot.
 3. Communication:
@@ -18,7 +18,7 @@
     - [X] Beliefs will not fire if percepts with same content added.
 2. LeJOS:
     - [X] Create some basic classes and methods.
-    - [ ] Update arena information on LCD screen.
+    - [X] Update arena information on LCD screen.
     - [X] Build an emulator.
 3. Communication:
     - [X] Add interfaces on both Jason side and LeJOS side.

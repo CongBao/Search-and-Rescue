@@ -22,8 +22,6 @@ import jason.environment.grid.Location;
  */
 public class RescueEnv extends Environment {
 
-	private Robot robot;
-
 	public static final String DOCTOR = "doctor";
 	public static final String SCOUT = "scout";
 
@@ -31,6 +29,8 @@ public class RescueEnv extends Environment {
 
 	private ArenaModel model;
 	private ArenaView view;
+
+	private Robot robot;
 
 	@Override
 	public void init(String[] args) {
@@ -40,7 +40,7 @@ public class RescueEnv extends Environment {
 		model.setView(view);
 		initRemain();
 
-		robot = new RemoteRobot("10.0.1.1", 10000);
+		robot = new RemoteRobot("127.0.0.1", 10000); // TODO 10.0.1.1
 	}
 
 	@Override
@@ -100,6 +100,11 @@ public class RescueEnv extends Environment {
 		return null;
 	}
 
+	/**
+	 * Create a time stamp to prevent the same percept.
+	 *
+	 * @return a {@link NumberTerm} of time stamp
+	 */
 	public NumberTerm getTimeStamp() {
 		return ASSyntax.createNumber(System.currentTimeMillis());
 	}
@@ -111,8 +116,8 @@ public class RescueEnv extends Environment {
 			switch (action.getFunctor()) {
 			// actions of doctor
 			case "localize": localize(action); break;
-			case "find_path": findPath(action); break;
 			case "determine": determine(action); break;
+			case "find_path": findPath(action); break;
 			// actions of scout
 			case "detect": detect(action); break;
 			case "move": move(action); break;
@@ -124,7 +129,7 @@ public class RescueEnv extends Environment {
 			nve.printStackTrace();
 			return false;
 		}
-		// robot.updateArenaInfo(model.getModelData()); // TODO
+		robot.updateArenaInfo(model.getModelData());
 		try {
 			Thread.sleep(500);
 		} catch (Exception e) {
@@ -198,20 +203,6 @@ public class RescueEnv extends Environment {
 		putRemain(remain);
 	}
 
-	// find a total path passing all remaining possible victims
-	private void findPath(Structure action) {
-		List<Location> optimalPath = model.findOptimalPath();
-		List<Term> path = new LinkedList<>();
-		for (Location loc : optimalPath) {
-			NumberTerm x = ASSyntax.createNumber(loc.x);
-			NumberTerm y = ASSyntax.createNumber(loc.y);
-			Literal l = ASSyntax.createLiteral("pos", x, y);
-			path.add(l);
-		}
-		ListTerm lt = ASSyntax.createList(path);
-		addPercept(DOCTOR, ASSyntax.createLiteral("total_path", lt));
-	}
-
 	// once doctor find where scout is, prepare for path finding
 	private void determine(Structure action) throws NoValueException {
 		int x = (int) ((NumberTerm) action.getTerm(0)).solve();
@@ -226,7 +217,22 @@ public class RescueEnv extends Environment {
 		model.addVisitedCount(pos, dir);
 		putVictims();
 		model.setAgPos(ArenaModel.SCOUT, x, y);
+		robot.updateRobotInfo(new Location(x, y), dir);
 		addPercept(DOCTOR, ASSyntax.createLiteral("pos", action.getTerm(0), action.getTerm(1)));
+	}
+
+	// find a total path passing all remaining possible victims
+	private void findPath(Structure action) {
+		List<Location> optimalPath = model.findOptimalPath();
+		List<Term> path = new LinkedList<>();
+		for (Location loc : optimalPath) {
+			NumberTerm x = ASSyntax.createNumber(loc.x);
+			NumberTerm y = ASSyntax.createNumber(loc.y);
+			Literal l = ASSyntax.createLiteral("pos", x, y);
+			path.add(l);
+		}
+		ListTerm lt = ASSyntax.createList(path);
+		addPercept(DOCTOR, ASSyntax.createLiteral("total_path", lt));
 	}
 
 	// detect obstacle and victim data from robot
@@ -277,8 +283,8 @@ public class RescueEnv extends Environment {
 		int x = (int) ((NumberTerm) action.getTerm(0)).solve();
 		int y = (int) ((NumberTerm) action.getTerm(1)).solve();
 		Location target = new Location(x, y);
-		model.travelTo(target);
 		robot.moveTo(target);
+		model.travelTo(target);
 		removePerceptsByUnif(SCOUT, Literal.parseLiteral("at(_, _, _)"));
 		addPercept(SCOUT, ASSyntax.createLiteral("at", action.getTerm(0), action.getTerm(1), getTimeStamp()));
 	}
