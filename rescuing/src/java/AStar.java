@@ -107,10 +107,7 @@ public class AStar {
 	}
 
 	private boolean isOccupied(Node node) {
-		if (model.isFree(node.x, node.y)) {
-			return false;
-		}
-		return true;
+		return !model.isFreeOfObstacle(node.x, node.y);
 	}
 
 	private class Node implements Comparable<Node> {

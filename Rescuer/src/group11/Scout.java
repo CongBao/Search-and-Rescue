@@ -61,6 +61,8 @@ public class Scout implements Robot {
 		final int size = 30;
 		final int center_x = lcd.getWidth() / 2;
 		final int center_y = lcd.getHeight() / 2;
+		lcd.clear();
+		lcd.setFont(Font.getDefaultFont());
 		lcd.drawRect(center_x - size / 2, center_y - size / 2, size, size); // center
 		lcd.drawChar('X', center_x - 1, center_y - 1, 0);
 		if (obsData[0]) {
@@ -69,9 +71,9 @@ public class Scout implements Robot {
 			lcd.drawRect(center_x - 3 * size / 2, center_y - size / 2, size, size);
 		}
 		if (obsData[1]) {
-			lcd.fillRect(center_x + 3 * size / 2, center_y - size / 2, size, size);
+			lcd.fillRect(center_x + size, center_y - size / 2, size, size);
 		} else {
-			lcd.drawRect(center_x + 3 * size / 2, center_y - size / 2, size, size);
+			lcd.drawRect(center_x + size, center_y - size / 2, size, size);
 		}
 		if (obsData[2]) {
 			lcd.fillRect(center_x - size / 2, center_y - 3 * size / 2, size, size);
@@ -79,9 +81,9 @@ public class Scout implements Robot {
 			lcd.drawRect(center_x - size / 2, center_y - 3 * size / 2, size, size);
 		}
 		if (obsData[3]) {
-			lcd.fillRect(center_x - size / 2, center_y + 3 * size / 2, size, size);
+			lcd.fillRect(center_x - size / 2, center_y + size, size, size);
 		} else {
-			lcd.drawRect(center_x - size / 2, center_y + 3 * size / 2, size, size);
+			lcd.drawRect(center_x - size / 2, center_y + size, size, size);
 		}
 	}
 
@@ -100,9 +102,9 @@ public class Scout implements Robot {
 		for (int j = 0; j < map[0].length; j++) {
 			for (int i = 0; i < map.length; i++) {
 				if (map[i][j] == Arena.OBSTACLE) {
-					lcd.drawRect(box_bias_x + size * i, box_bias_y + size * j, size, size);
-				} else {
 					lcd.fillRect(box_bias_x + size * i, box_bias_y + size * j, size, size);
+				} else {
+					lcd.drawRect(box_bias_x + size * i, box_bias_y + size * j, size, size);
 				}
 				if ((map[i][j] & Arena.VIC_CRI) != 0) {
 					lcd.drawChar('R', char_bias_x + size * i, char_bias_y + size * j, 0);
@@ -253,11 +255,11 @@ public class Scout implements Robot {
 			int[] pos = arena.getAgtPos();
 			int[] dir = arena.getAgtDir();
 			if (dir[0] == 0) {
-				int[] newPos = new int[] { pos[0], pos[1] + dir[1] };
+				int[] newPos = new int[] { pos[0], pos[1] + dir[1] * (forth ? 1 : -1) };
 				pilot.travel(Arena.UNIT_DEPTH * (forth ? 1 : -1));
 				arena.setAgtPos(newPos);
 			} else if (dir[1] == 0) {
-				int[] newPos = new int[] { pos[0] + dir[0], pos[1] };
+				int[] newPos = new int[] { pos[0] + dir[0] * (forth ? 1 : -1), pos[1] };
 				pilot.travel(Arena.UNIT_WIDTH * (forth ? 1 : -1));
 				arena.setAgtPos(newPos);
 			}
@@ -282,7 +284,7 @@ public class Scout implements Robot {
 
 	@Override
 	public boolean[] detectObstacle() {
-		final double threshold = 0.3 * (Arena.UNIT_DEPTH + Arena.UNIT_WIDTH);
+		final double threshold = 0.4 * (Arena.UNIT_DEPTH + Arena.UNIT_WIDTH);
 		boolean[] obsData = new boolean[4];
 		float[] disData = scanAround();
 		for (int i = 0; i < 3; i++) {

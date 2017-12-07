@@ -76,7 +76,7 @@ vic_rescued(0).
                              if (.member(pos(X, Y), V)) {
                                  .print("Please check if there is a victim.");
                                  .send(scout, achieve, check(X, Y));
-                                 .wait(500);
+                                 .wait(1000);
                                  .delete(pos(X, Y), V, R);
                                  -+vic_pos(R);
                              };

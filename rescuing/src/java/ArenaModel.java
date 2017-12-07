@@ -11,7 +11,7 @@ import jason.environment.grid.Location;
 
 public class ArenaModel extends GridWorldModel {
 
-	public static final int WIDTH = 5 + 2; // TODO 6
+	public static final int WIDTH = 6 + 2;
 	public static final int HEIGHT = 6 + 2;
 
 	public static final int SCOUT = 0;
@@ -37,19 +37,19 @@ public class ArenaModel extends GridWorldModel {
 		addWall(0, HEIGHT - 1, WIDTH - 1, HEIGHT - 1);
 		addWall(WIDTH - 1, 0, WIDTH - 1, HEIGHT - 1);
 		// obstacles
-		add(OBSTACLE, 1, 2);
-		add(OBSTACLE, 2, 4);
-		add(OBSTACLE, 2, 6);
+		add(OBSTACLE, 1, 6);
+		add(OBSTACLE, 2, 3);
 		add(OBSTACLE, 3, 2);
-		add(OBSTACLE, 3, 5);
-		add(OBSTACLE, 4, 3);
+		add(OBSTACLE, 5, 2);
+		add(OBSTACLE, 5, 5);
+		add(OBSTACLE, 6, 5);
 		// possible victims
 		possibleVictims = new LinkedList<>();
 		possibleVictims.add(new Location(1, 1));
 		possibleVictims.add(new Location(2, 5));
-		possibleVictims.add(new Location(4, 2));
-		possibleVictims.add(new Location(4, 6));
-		possibleVictims.add(new Location(5, 5));
+		possibleVictims.add(new Location(3, 3));
+		possibleVictims.add(new Location(5, 1));
+		possibleVictims.add(new Location(6, 4));
 		for (Location loc : possibleVictims) {
 			add(VIC_POS, loc);
 		}
@@ -117,7 +117,10 @@ public class ArenaModel extends GridWorldModel {
 				real[1] = !isFreeOfObstacle(pos.x - dir[1], pos.y + dir[0]);
 				real[2] = !isFreeOfObstacle(pos.x + dir[0], pos.y + dir[1]);
 				real[3] = !isFreeOfObstacle(pos.x - dir[0], pos.y - dir[1]);
-				if (Arrays.equals(obsData, real) && getObject(pos) == vicData) {
+				if (Arrays.equals(obsData, real) && (getObject(pos) == vicData || CLEAN == vicData)) {
+					if (hasObject(VIC_POS, pos)) {
+						checkAndRescue(VIC_POS);
+					}
 					posDir.add(dir);
 				}
 			}
@@ -202,7 +205,7 @@ public class ArenaModel extends GridWorldModel {
 	 *            a list of neighbor locations
 	 * @return the nearest location in list
 	 */
-	public Location findNearestTarget(Location start, List<Location> neighbors) {
+	public Location findNearestTarget(final Location start, final List<Location> neighbors) {
 		AStar aStar = new AStar(this);
 		Map<Location, Integer> dis = new HashMap<>();
 		for (Location loc : neighbors) {
