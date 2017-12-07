@@ -40,7 +40,7 @@ public class RescueEnv extends Environment {
 		model.setView(view);
 		initRemain();
 
-		robot = new RemoteRobot("10.0.1.1", 10000); // TODO 10.0.1.1
+		robot = new RemoteRobot("127.0.0.1", 10000); // TODO 10.0.1.1
 	}
 
 	@Override

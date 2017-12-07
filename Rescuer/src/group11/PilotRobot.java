@@ -44,7 +44,10 @@ public class PilotRobot {
 		Chassis myChassis = new WheeledChassis(new Wheel[] { leftWheel, rightWheel }, WheeledChassis.TYPE_DIFFERENTIAL);
 
 		pilot = new MovePilot(myChassis);
-		pilot.setAngularSpeed(pilot.getMaxAngularSpeed() * 0.5);
+		pilot.setAngularSpeed(pilot.getAngularSpeed() * 0.5);
+		pilot.setAngularAcceleration(pilot.getAngularAcceleration() * 0.5);
+		pilot.setLinearSpeed(pilot.getLinearSpeed() * 0.5);
+		pilot.setLinearAcceleration(pilot.getLinearAcceleration() * 0.5);
 	}
 
 	public synchronized void closeRobot() {

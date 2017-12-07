@@ -9,6 +9,7 @@ import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.Font;
 import lejos.hardware.lcd.GraphicsLCD;
 import lejos.hardware.motor.Motor;
+import lejos.robotics.geometry.Point;
 import lejos.robotics.localization.OdometryPoseProvider;
 import lejos.robotics.navigation.MovePilot;
 
@@ -71,9 +72,9 @@ public class Scout implements Robot {
 			lcd.drawRect(center_x - 3 * size / 2, center_y - size / 2, size, size);
 		}
 		if (obsData[1]) {
-			lcd.fillRect(center_x + size, center_y - size / 2, size, size);
+			lcd.fillRect(center_x + size / 2, center_y - size / 2, size, size);
 		} else {
-			lcd.drawRect(center_x + size, center_y - size / 2, size, size);
+			lcd.drawRect(center_x + size / 2, center_y - size / 2, size, size);
 		}
 		if (obsData[2]) {
 			lcd.fillRect(center_x - size / 2, center_y - 3 * size / 2, size, size);
@@ -81,9 +82,9 @@ public class Scout implements Robot {
 			lcd.drawRect(center_x - size / 2, center_y - 3 * size / 2, size, size);
 		}
 		if (obsData[3]) {
-			lcd.fillRect(center_x - size / 2, center_y + size, size, size);
+			lcd.fillRect(center_x - size / 2, center_y + size / 2, size, size);
 		} else {
-			lcd.drawRect(center_x - size / 2, center_y + size, size, size);
+			lcd.drawRect(center_x - size / 2, center_y + size / 2, size, size);
 		}
 	}
 
@@ -254,19 +255,40 @@ public class Scout implements Robot {
 		if (determined) {
 			int[] pos = arena.getAgtPos();
 			int[] dir = arena.getAgtDir();
-			if (dir[0] == 0) {
-				int[] newPos = new int[] { pos[0], pos[1] + dir[1] * (forth ? 1 : -1) };
-				pilot.travel(Arena.UNIT_DEPTH * (forth ? 1 : -1));
-				arena.setAgtPos(newPos);
-			} else if (dir[1] == 0) {
-				int[] newPos = new int[] { pos[0] + dir[0] * (forth ? 1 : -1), pos[1] };
-				pilot.travel(Arena.UNIT_WIDTH * (forth ? 1 : -1));
-				arena.setAgtPos(newPos);
-			}
-		} else {
-			double dis = 0.5 * (Arena.UNIT_DEPTH + Arena.UNIT_WIDTH) * (forth ? 1 : -1); // TODO
-			pilot.travel(dis);
+			arena.setAgtPos(new int[] { pos[0] + dir[0] * (forth ? 1 : -1), pos[1] + dir[1] * (forth ? 1 : -1)});
 		}
+		travelWithBlackLine(forth);
+	}
+
+	/**
+	 * Travel with the help of black line.
+	 *
+	 * @param forth
+	 *            whether move forth or not
+	 */
+	public void travelWithBlackLine(boolean forth) {
+		Point start = pose.getPose().getLocation();
+		float distance = 0.0f;
+		if (forth) {
+			pilot.forward();
+		} else {
+			pilot.backward();
+		}
+		while (true) {
+			float[] colorData = detectRGB(5, 3, 10);
+			if (colorData[0] < 0.05 && colorData[1] < 0.05 && colorData[2] < 0.05) {
+				pilot.stop();
+				distance = pose.getPose().distanceTo(start);
+				break;
+			}
+		}
+		if (distance > 0.85 * Arena.UNIT_DEPTH) {
+			distance *= 0.85;
+		}
+		if (distance < 0.15 * Arena.UNIT_WIDTH) {
+			distance /= 0.85;
+		}
+		pilot.travel(distance * (forth ? 1 : -1) * 0.9);
 	}
 
 	@Override

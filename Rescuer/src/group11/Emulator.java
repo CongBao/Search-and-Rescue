@@ -69,8 +69,6 @@ public class Emulator implements Robot {
 		dir[1] = Math.abs(dir[0] - 1);
 		dir[0] = random.nextBoolean() ? dir[0] : -dir[0];
 		dir[1] = random.nextBoolean() ? dir[1] : -dir[1];
-		pos = new int[] {2, 6};
-		dir = Arena.NORTH;
 	}
 
 	public boolean isFree(int x, int y) {
@@ -150,7 +148,8 @@ public class Emulator implements Robot {
 
 	@Override
 	public int detectVictim() {
-		/*if (hasObject(Arena.VIC_POS, pos[0], pos[1])) {
+		delay("scan");
+		if (hasObject(Arena.VIC_POS, pos[0], pos[1])) {
 			int rand = random.nextInt(posVicCount + actVicCount);
 			if (rand < posVicCount) {
 				posVicCount--;
@@ -159,17 +158,7 @@ public class Emulator implements Robot {
 			actVicCount--;
 			return (int) Math.pow(2, random.nextInt(3) + 4);
 		}
-		return Arena.CLEAN;*/
-		delay("scan");
-		if (Arrays.equals(pos, new int[] {1, 1})) {
-			return Arena.VIC_MIN;
-		} else if (Arrays.equals(pos, new int[] {5, 1})) {
-			return Arena.VIC_CRI;
-		} else if (Arrays.equals(pos, new int[] {3 , 3})) {
-			return Arena.VIC_SER;
-		} else {
-			return Arena.CLEAN;
-		}
+		return Arena.CLEAN;
 	}
 
 	@Override
