@@ -7,7 +7,6 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import com.google.gson.Gson;
-import jason.environment.grid.Location;
 import lejos.hardware.motor.Motor;
 
 /**
@@ -59,7 +58,7 @@ public class RobotConnector extends Thread {
                         break;
                     case "updateRobotInfo":
                         String[] params = parsed[1].split("-param->");
-                        robot.updateRobotInfo(gson.fromJson(params[0], Location.class), gson.fromJson(params[1], int[].class));
+                        robot.updateRobotInfo(gson.fromJson(params[0], int[].class), gson.fromJson(params[1], int[].class));
                         sendOut.println("");
                         break;
                     case "detectObstacle":
@@ -73,7 +72,7 @@ public class RobotConnector extends Thread {
                         sendOut.println("");
                         break;
                     case "moveToLoc":
-                        robot.moveTo(gson.fromJson(parsed[1], Location.class));
+                        robot.moveTo(gson.fromJson(parsed[1], int[].class));
                         sendOut.println("");
                         break;
                     case "GO":
