@@ -54,7 +54,7 @@ public class RobotController implements Robot {
     
     @Override
     public void updateRobotInfo(Location loc, int[] dir) {
-        sendToRobot("updateRobotInfo-cmd->" + gson.toJson(loc) + "-param->" + gson.toJson(dir));
+        sendToRobot("updateRobotInfo-cmd->" + gson.toJson(new int[]{loc.x, loc.y}) + "-param->" + gson.toJson(dir));
     }
     
     @Override
@@ -74,7 +74,7 @@ public class RobotController implements Robot {
     
     @Override
     public void moveTo(Location loc) {
-        sendToRobot("moveToLoc-cmd->" + gson.toJson(loc));
+        sendToRobot("moveToLoc-cmd->" + gson.toJson(new int[]{loc.x, loc.y}));
     }
     
     /**
