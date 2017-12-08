@@ -46,10 +46,10 @@ public class ArenaModel extends GridWorldModel {
 		// possible victims
 		possibleVictims = new LinkedList<>();
 		possibleVictims.add(new Location(1, 1));
-		possibleVictims.add(new Location(2, 5));
 		possibleVictims.add(new Location(3, 3));
+		possibleVictims.add(new Location(3, 5));
+		possibleVictims.add(new Location(4, 4));
 		possibleVictims.add(new Location(5, 1));
-		possibleVictims.add(new Location(6, 4));
 		for (Location loc : possibleVictims) {
 			add(VIC_POS, loc);
 		}

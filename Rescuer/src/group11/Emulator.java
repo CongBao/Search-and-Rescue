@@ -50,10 +50,10 @@ public class Emulator implements Robot {
 		map[5][5] =  Arena.OBSTACLE;
 		map[6][5] =  Arena.OBSTACLE;
 		map[1][1] =  Arena.VIC_POS;
-		map[2][5] =  Arena.VIC_POS;
 		map[3][3] =  Arena.VIC_POS;
+		map[3][5] =  Arena.VIC_POS;
+		map[4][4] =  Arena.VIC_POS;
 		map[5][1] =  Arena.VIC_POS;
-		map[6][4] =  Arena.VIC_POS;
 	}
 
 	public void initRobot() {

@@ -39,15 +39,15 @@ public class PilotRobot {
 		distSample = new float[distSP.sampleSize()]; // Size is 1
 		colourSample = new float[colourSP.sampleSize()]; // Size is 1 for Red Mode, 3 for RGB Mode
 
-		Wheel leftWheel = WheeledChassis.modelWheel(Motor.B, 4.4).offset(-5.7);
-		Wheel rightWheel = WheeledChassis.modelWheel(Motor.D, 4.4).offset(5.7);
+		Wheel leftWheel = WheeledChassis.modelWheel(Motor.B, 4.4).offset(-5.55);
+		Wheel rightWheel = WheeledChassis.modelWheel(Motor.D, 4.4).offset(5.55);
 		Chassis myChassis = new WheeledChassis(new Wheel[] { leftWheel, rightWheel }, WheeledChassis.TYPE_DIFFERENTIAL);
 
 		pilot = new MovePilot(myChassis);
-		pilot.setAngularSpeed(pilot.getAngularSpeed() * 0.5);
-		pilot.setAngularAcceleration(pilot.getAngularAcceleration() * 0.5);
-		pilot.setLinearSpeed(pilot.getLinearSpeed() * 0.5);
-		pilot.setLinearAcceleration(pilot.getLinearAcceleration() * 0.5);
+		pilot.setAngularSpeed(pilot.getAngularSpeed() * 0.4);
+		pilot.setAngularAcceleration(pilot.getAngularAcceleration() * 0.4);
+		pilot.setLinearSpeed(pilot.getLinearSpeed() * 0.4);
+		pilot.setLinearAcceleration(pilot.getLinearAcceleration() * 0.4);
 	}
 
 	public synchronized void closeRobot() {

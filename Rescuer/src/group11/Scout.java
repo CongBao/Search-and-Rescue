@@ -2,6 +2,7 @@ package group11;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 
 import lejos.hardware.Button;
@@ -276,7 +277,7 @@ public class Scout implements Robot {
 		}
 		while (true) {
 			float[] colorData = detectRGB(5, 3, 10);
-			if (colorData[0] < 0.05 && colorData[1] < 0.05 && colorData[2] < 0.05) {
+			if (colorData[0] < 0.1 && colorData[1] < 0.1 && colorData[2] < 0.1) {
 				pilot.stop();
 				distance = pose.getPose().distanceTo(start);
 				break;
@@ -306,7 +307,7 @@ public class Scout implements Robot {
 
 	@Override
 	public boolean[] detectObstacle() {
-		final double threshold = 0.4 * (Arena.UNIT_DEPTH + Arena.UNIT_WIDTH);
+		final double threshold = 0.45 * (Arena.UNIT_DEPTH + Arena.UNIT_WIDTH);
 		boolean[] obsData = new boolean[4];
 		float[] disData = scanAround();
 		for (int i = 0; i < 3; i++) {
@@ -334,7 +335,7 @@ public class Scout implements Robot {
 	 */
 	@Override
 	public int detectVictim() {
-		float[] colorData = detectRGB(9, 5, 100);
+		float[] colorData = detectRGB(9, 5, 20);
 		if (colorData[0] > 0.2 && colorData[1] > 0.2 && colorData[2] > 0.2) {
 			return Arena.CLEAN;
 		} else if (colorData[0] > 0.2 && colorData[1] < 0.1 && colorData[2] < 0.1) {
@@ -351,6 +352,7 @@ public class Scout implements Robot {
 	public void moveTo(char side) {
 		switch (side) {
 		case 'L':
+			pilot.travel(-1.5);
 			pilot.rotate(-90);
 			if (determined) {
 				int[] dir = arena.getAgtDir();
@@ -358,6 +360,7 @@ public class Scout implements Robot {
 			}
 			break;
 		case 'R':
+			pilot.travel(-1.5);
 			pilot.rotate(90);
 			if (determined) {
 				int[] dir = arena.getAgtDir();
@@ -411,11 +414,39 @@ public class Scout implements Robot {
 		}
 	}
 
+	public void testColor() {
+		DecimalFormat df = new DecimalFormat("####0.000");
+		lcd.setFont(Font.getSmallFont());
+		while (true) {
+			lcd.clear();
+			float[] colorData = detectRGB(9, 5, 20);
+			lcd.drawString("Colour: [" + df.format(colorData[0]) + ", " + df.format(colorData[1]) + ", " + df.format(colorData[2]) + "]", 0, 50, 0);
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void testDistance() {
+		DecimalFormat df = new DecimalFormat("####0.000");
+		lcd.setFont(Font.getSmallFont());
+		while (true) {
+			lcd.clear();
+			float[] disData = scanAround();
+			lcd.drawString("Dis: [" + df.format(disData[0]) + ", " + df.format(disData[1]) + ", " + df.format(disData[2]) + "]", 0, 50, 0);
+			lcd.drawString("Press for next...", 0, 70, 0);
+			Button.waitForAnyPress();
+		}
+	}
+
 	public static void main(String[] args) {
 		Scout scout = new Scout();
 		scout.lcd.drawString("Press any button to start", 0, 0, 0);
 		Button.waitForAnyPress();
-		scout.lcd.clear();
+		//scout.lcd.clear();
+		//scout.testColor();
 		scout.lcd.drawString("Waiting for PC connecting...", 0, 0, 0);
 		RemotePC remote = new RemotePC(scout, 10000);
 		scout.lcd.clear();
