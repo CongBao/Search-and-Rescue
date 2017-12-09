@@ -266,8 +266,13 @@ public class Scout implements Robot {
 	 *
 	 * @param forth
 	 *            whether move forth or not
+	 * @param factors
+	 *            some factors to calculate logistic function, in [min, max, gradient].
+	 *            min - the lower bound rate of unit width of arena, default 0.15;
+	 *            max - the upper bound rate of unit depth of arena, default 0.8;
+	 *            gradient - the rate of slope of logistic function, default 0.16.
 	 */
-	public void travelWithBlackLine(boolean forth) {
+	public void travelWithBlackLine(boolean forth, double... factors) {
 		Point start = pose.getPose().getLocation();
 		float distance = 0.0f;
 		if (forth) {
@@ -283,13 +288,23 @@ public class Scout implements Robot {
 				break;
 			}
 		}
-		if (distance > 0.85 * Arena.UNIT_DEPTH) {
-			distance *= 0.85;
+		// logistic function
+		// y = c / (1 + e^(-k * (x + b))) + d
+		double [] params = new double[] { 0.15, 0.8, 0.16 };
+		for (int i = 0; i < Math.min(params.length, factors.length); i++) {
+			params[i] = factors[i];
 		}
-		if (distance < 0.15 * Arena.UNIT_WIDTH) {
-			distance /= 0.85;
-		}
-		pilot.travel(distance * (forth ? 1 : -1) * 0.9);
+		double b = -0.25 * (Arena.UNIT_DEPTH + Arena.UNIT_WIDTH);
+		double c = params[1] * Arena.UNIT_DEPTH - params[0] * Arena.UNIT_WIDTH;
+		double d = params[0] * Arena.UNIT_WIDTH;
+		double k = params[2];
+		double next = distance + b;
+		next *= -k;
+		next = Math.pow(Math.E, next);
+		next += 1;
+		next = c / next;
+		next += d;
+		pilot.travel(next * (forth ? 1 : -1));
 	}
 
 	@Override
