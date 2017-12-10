@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Polygon;
 import java.util.Arrays;
@@ -13,11 +12,11 @@ public class ArenaView extends GridWorldView {
 
 	private static final long serialVersionUID = 1L;
 
-	Map<Location, List<int[]>> remain; // used for draw possible location and heading
+	Map<Location, List<int[]>> remain; // used to draw possible location and heading
+	int[] heading; // used to draw robot's heading
 
 	public ArenaView(ArenaModel model) {
 		super(model, "Arena Model", 700);
-		defaultFont = new Font("Consolas", Font.BOLD | Font.ITALIC, 20);
 		setVisible(true);
 		repaint();
 	}
@@ -42,7 +41,7 @@ public class ArenaView extends GridWorldView {
 			drawVic(g, x, y, Color.green);
 			break;
 		case ArenaModel.POS_LOC:
-			drawRemain(g, Color.yellow);
+			drawRemain(g);
 			break;
 		default:
 			break;
@@ -51,9 +50,11 @@ public class ArenaView extends GridWorldView {
 
 	@Override
 	public void drawAgent(Graphics g, int x, int y, Color c, int id) {
-		super.drawAgent(g, x, y, Color.magenta, -1);
+		Polygon p = getTriangle(new int[] { x, y }, heading);
+		g.setColor(Color.magenta);
+		g.fillPolygon(p);
 		g.setColor(Color.black);
-		drawString(g, x, y, defaultFont, "Scout");
+		g.drawPolygon(p);
 	}
 
 	public void drawVic(Graphics g, int x, int y, Color c) {
@@ -63,36 +64,40 @@ public class ArenaView extends GridWorldView {
 		g.drawRect(x * cellSizeW + 2, y * cellSizeH + 2, cellSizeW - 4, cellSizeH - 4);
 	}
 
-	public void drawRemain(Graphics g, Color c) {
-		g.setColor(c);
+	public void drawRemain(Graphics g) {
 		for (Location pos : remain.keySet()) {
 			for (int[] dir : remain.get(pos)) {
-				int x = pos.x;
-				int y = pos.y;
-				Polygon p = new Polygon();
-				if (Arrays.equals(dir, new int[] { 0, -1 })) { // N
-					p.addPoint(x * cellSizeW + cellSizeW / 2, y * cellSizeH + 1);
-					p.addPoint(x * cellSizeW + 1, y * cellSizeH + cellSizeH - 1);
-					p.addPoint(x * cellSizeW + cellSizeW - 1, y * cellSizeH + cellSizeH - 1);
-				} else if (Arrays.equals(dir, new int[] { 0, 1 })) { // S
-					p.addPoint(x * cellSizeW + 1, y * cellSizeH + 1);
-					p.addPoint(x * cellSizeW + cellSizeW - 1, y * cellSizeH + 1);
-					p.addPoint(x * cellSizeW + cellSizeW / 2, y * cellSizeH + cellSizeH - 1);
-				} else if (Arrays.equals(dir, new int[] { -1, 0 })) { // W
-					p.addPoint(x * cellSizeW + 1, y * cellSizeH + cellSizeH / 2);
-					p.addPoint(x * cellSizeW + cellSizeW - 1, y * cellSizeH + 1);
-					p.addPoint(x * cellSizeW + cellSizeW - 1, y * cellSizeH + cellSizeH - 1);
-				} else if (Arrays.equals(dir, new int[] { 1, 0 })) { // E
-					p.addPoint(x * cellSizeW + 1, y * cellSizeH + 1);
-					p.addPoint(x * cellSizeW + 1, y * cellSizeH + cellSizeH - 1);
-					p.addPoint(x * cellSizeW + cellSizeW - 1, y * cellSizeH + cellSizeH / 2);
-				}
+				Polygon p = getTriangle(new int[] { pos.x, pos.y },  dir);
+				g.setColor(Color.yellow);
 				g.fillPolygon(p);
 				g.setColor(Color.black);
 				g.drawPolygon(p);
-				g.setColor(c);
 			}
 		}
+	}
+
+	private Polygon getTriangle(int[] pos, int[] dir) {
+		Polygon p = new Polygon();
+		int x = pos[0];
+		int y = pos[1];
+		if (Arrays.equals(dir, new int[] { 0, -1 })) { // N
+			p.addPoint(x * cellSizeW + cellSizeW / 2, y * cellSizeH + 1);
+			p.addPoint(x * cellSizeW + 1, y * cellSizeH + cellSizeH - 1);
+			p.addPoint(x * cellSizeW + cellSizeW - 1, y * cellSizeH + cellSizeH - 1);
+		} else if (Arrays.equals(dir, new int[] { 0, 1 })) { // S
+			p.addPoint(x * cellSizeW + 1, y * cellSizeH + 1);
+			p.addPoint(x * cellSizeW + cellSizeW - 1, y * cellSizeH + 1);
+			p.addPoint(x * cellSizeW + cellSizeW / 2, y * cellSizeH + cellSizeH - 1);
+		} else if (Arrays.equals(dir, new int[] { -1, 0 })) { // W
+			p.addPoint(x * cellSizeW + 1, y * cellSizeH + cellSizeH / 2);
+			p.addPoint(x * cellSizeW + cellSizeW - 1, y * cellSizeH + 1);
+			p.addPoint(x * cellSizeW + cellSizeW - 1, y * cellSizeH + cellSizeH - 1);
+		} else if (Arrays.equals(dir, new int[] { 1, 0 })) { // E
+			p.addPoint(x * cellSizeW + 1, y * cellSizeH + 1);
+			p.addPoint(x * cellSizeW + 1, y * cellSizeH + cellSizeH - 1);
+			p.addPoint(x * cellSizeW + cellSizeW - 1, y * cellSizeH + cellSizeH / 2);
+		}
+		return p;
 	}
 
 }

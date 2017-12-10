@@ -229,17 +229,19 @@ public class ArenaModel extends GridWorldModel {
 	 */
 	public void travelTo(Location loc) {
 		Location now = getAgPos(SCOUT);
-		if (now.x < loc.x) {
-			now.x++;
-		} else if (now.x > loc.x) {
-			now.x--;
+		int[] dir = ((ArenaView) view).heading;
+		int[] to = new int[] { loc.x - now.x, loc.y - now.y };
+		int sin = dir[0] * to[1] - dir[1] * to[0];
+		switch (sin) {
+		case -1:
+			dir = new int[] { dir[1], -dir[0] };
+			break;
+		case 1:
+			dir = new int[] { -dir[1], dir[0] };
+			break;
 		}
-		if (now.y < loc.y) {
-			now.y++;
-		} else if (now.y > loc.y) {
-			now.y--;
-		}
-		setAgPos(SCOUT, now);
+		((ArenaView) view).heading = dir;
+		setAgPos(SCOUT, loc);
 	}
 
 	/**

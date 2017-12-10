@@ -212,12 +212,13 @@ public class RescueEnv extends Environment {
 		int[] pos = new int[] { x, y };
 		int[] dir = new int[] { d1, d2 };
 		view.update();
+		view.heading = dir;
+		model.setAgPos(ArenaModel.SCOUT, x, y);
 		model.remove(ArenaModel.POS_LOC, x, y);
 		model.removeCheckedVic(pos, dir);
 		model.addVisitedCount(pos, dir);
-		putVictims();
-		model.setAgPos(ArenaModel.SCOUT, x, y);
 		robot.updateRobotInfo(new Location(x, y), dir);
+		putVictims();
 		addPercept(DOCTOR, ASSyntax.createLiteral("pos", action.getTerm(0), action.getTerm(1)));
 	}
 
