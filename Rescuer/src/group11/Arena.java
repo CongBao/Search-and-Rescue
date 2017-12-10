@@ -32,15 +32,57 @@ public class Arena {
 
 	public Arena() {
 		map = new int[WIDTH + 2][DEPTH + 2];
-		for (int i = 0; i < WIDTH + 2; i++) {
-			map[i][0] = OBSTACLE;
-			map[i][DEPTH + 1] = OBSTACLE;
-		}
-		for (int i = 0; i < DEPTH + 2; i++) {
-			map[0][i] = OBSTACLE;
-			map[WIDTH + 1][i] = OBSTACLE;
-		}
 		agtDir = agtPos = UNKNOWN;
+	}
+
+	/**
+	 * Whether the given side is occupied by an obstacle or not.
+	 *
+	 * @param side
+	 *            one side of current place, in ('L', 'R', 'F', 'B')
+	 * @return whether the side is occupied
+	 */
+	public Boolean isOccupied(char side) {
+		switch (side) {
+		case 'L':
+			return isOccupied(agtPos[0] + agtDir[1], agtPos[1] - agtDir[0]);
+		case 'R':
+			return isOccupied(agtPos[0] - agtDir[1], agtPos[1] + agtDir[0]);
+		case 'F':
+			return isOccupied(agtPos[0] + agtDir[0], agtPos[1] + agtDir[1]);
+		case 'B':
+			return isOccupied(agtPos[0] - agtDir[0], agtPos[1] - agtDir[1]);
+		default:
+			return null;
+		}
+	}
+
+	/**
+	 * Whether the given place is occupied by an obstacle or not.
+	 *
+	 * @param x
+	 *            x-axis
+	 * @param y
+	 *            y-axis
+	 * @return whether the place is occupied or not
+	 */
+	public boolean isOccupied(int x, int y) {
+		return hasObject(OBSTACLE, x, y);
+	}
+
+	/**
+	 * Whether there is a given object at the given place.
+	 *
+	 * @param obj
+	 *            the id of this object
+	 * @param x
+	 *            x-axis
+	 * @param y
+	 *            y-axis
+	 * @return whether there is the object or not
+	 */
+	public boolean hasObject(int obj, int x, int y) {
+		return (map[x][y] & obj) != 0;
 	}
 
 	public int[][] getMap() {

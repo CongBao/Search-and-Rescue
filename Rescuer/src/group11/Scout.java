@@ -27,6 +27,8 @@ public class Scout implements Robot {
 	private boolean firstDetect = true;
 	private boolean determined = false;
 
+	private boolean[] obsData;
+
 	public Scout() {
 		arena = new Arena();
 
@@ -56,7 +58,10 @@ public class Scout implements Robot {
 		}).start();
 	}
 
-	public void drawNeighbor(boolean[] obsData) {
+	/**
+	 * Draw surrounding obstacles on LCD screen.
+	 */
+	public void drawNeighbor() {
 		if (determined) {
 			return;
 		}
@@ -89,6 +94,9 @@ public class Scout implements Robot {
 		}
 	}
 
+	/**
+	 * Draw the map on LCD screen.
+	 */
 	public void drawMap() {
 		if (!determined) {
 			return;
@@ -135,7 +143,7 @@ public class Scout implements Robot {
 	 *            delay between every two scans
 	 * @return mean of valid scans
 	 */
-	public float scan(int total, int sample, long delay) {
+	public float scan(int total, int sample, int delay) {
 		float[] data = new float[total];
 		for (int i = 0; i < total; i++) {
 			data[i] = robot.getDistance();
@@ -160,28 +168,36 @@ public class Scout implements Robot {
 	}
 
 	/**
-	 * Scan for the given direction, in ('L', 'R', 'F'). This method will update
-	 * arena info.
+	 * Scan for the given direction, in ('L', 'R', 'F').
 	 *
 	 * @param dir
 	 *            the direction to scan
+	 * @param params
+	 * 			  some optional parameters, in [total, sample, delay]:
+	 *            total - number of scans, default 9;
+	 *            sample - number of valid scans, default 5;
+	 *            delay - delay between every two scans, default 100.
 	 * @return the distance
 	 */
-	public float scanFor(char dir) {
+	public float scanFor(char dir, int... params) {
+		int[] args = new int[] { 9, 5, 100 };
+		for (int i = 0; i < Math.min(args.length, params.length); i++) {
+			args[i] = params[i];
+		}
 		float dis = 0.0f;
 		switch (dir) {
 		case 'L':
 			Motor.C.rotate(90);
-			dis = scan(9, 5, 100);
+			dis = scan(args[0], args[1], args[2]);
 			Motor.C.rotate(-90);
 			break;
 		case 'R':
 			Motor.C.rotate(-90);
-			dis = scan(9, 5, 100);
+			dis = scan(args[0], args[1], args[2]);
 			Motor.C.rotate(90);
 			break;
 		case 'F':
-			dis = scan(9, 5, 100);
+			dis = scan(args[0], args[1], args[2]);
 			break;
 		default:
 			break;
@@ -256,7 +272,7 @@ public class Scout implements Robot {
 		if (determined) {
 			int[] pos = arena.getAgtPos();
 			int[] dir = arena.getAgtDir();
-			arena.setAgtPos(new int[] { pos[0] + dir[0] * (forth ? 1 : -1), pos[1] + dir[1] * (forth ? 1 : -1)});
+			arena.setAgtPos(new int[] { pos[0] + dir[0] * (forth ? 1 : -1), pos[1] + dir[1] * (forth ? 1 : -1) });
 		}
 		travelWithBlackLine(forth);
 	}
@@ -266,13 +282,13 @@ public class Scout implements Robot {
 	 *
 	 * @param forth
 	 *            whether move forth or not
-	 * @param factors
-	 *            some factors to calculate logistic function, in [min, max, gradient].
+	 * @param params
+	 *            some parameters to calculate logistic function, in [min, max, gradient]:
 	 *            min - the lower bound rate of unit width of arena, default 0.15;
 	 *            max - the upper bound rate of unit depth of arena, default 0.8;
 	 *            gradient - the rate of slope of logistic function, default 0.16.
 	 */
-	public void travelWithBlackLine(boolean forth, double... factors) {
+	public void travelWithBlackLine(boolean forth, double... params) {
 		Point start = pose.getPose().getLocation();
 		float distance = 0.0f;
 		if (forth) {
@@ -290,14 +306,14 @@ public class Scout implements Robot {
 		}
 		// logistic function
 		// y = c / (1 + e^(-k * (x + b))) + d
-		double [] params = new double[] { 0.15, 0.8, 0.16 };
-		for (int i = 0; i < Math.min(params.length, factors.length); i++) {
-			params[i] = factors[i];
+		double [] args = new double[] { 0.15, 0.8, 0.16 };
+		for (int i = 0; i < Math.min(args.length, params.length); i++) {
+			args[i] = params[i];
 		}
 		double b = -0.25 * (Arena.UNIT_DEPTH + Arena.UNIT_WIDTH);
-		double c = params[1] * Arena.UNIT_DEPTH - params[0] * Arena.UNIT_WIDTH;
-		double d = params[0] * Arena.UNIT_WIDTH;
-		double k = params[2];
+		double c = args[1] * Arena.UNIT_DEPTH - args[0] * Arena.UNIT_WIDTH;
+		double d = args[0] * Arena.UNIT_WIDTH;
+		double k = args[2];
 		double next = distance + b;
 		next *= -k;
 		next = Math.pow(Math.E, next);
@@ -305,6 +321,43 @@ public class Scout implements Robot {
 		next = c / next;
 		next += d;
 		pilot.travel(next * (forth ? 1 : -1));
+	}
+
+	/**
+	 * Adjust the padding if there is an obstacle nearby.
+	 *
+	 * @param side
+	 *            the side obstacle locates, in ('L', 'R')
+	 */
+	public void adjustPadding(char side) {
+		final double len = 10;
+		final double gap = 8; // TODO test in real robot
+		double data = scanFor(side, 20, 12, 50);
+		double diff = gap - data;
+		double degree = Math.toDegrees(Math.atan(diff / len));
+		pilot.rotate(degree);
+		pilot.travel(Math.sqrt(diff * diff + len * len));
+		pilot.rotate(-degree);
+		pilot.travel(-len);
+	}
+
+	/**
+	 * Adjust the orientation if there is an obstacle nearby.
+	 *
+	 * @param side
+	 *            the side obstacle locates, in ('L', 'R')
+	 */
+	public void adjustOrientation(char side) {
+		final double backward = 3; // TODO test
+		final double forward = 5;
+		final double total = backward + forward;
+		pilot.travel(-backward);
+		double back = scanFor(side, 20, 12, 50);
+		pilot.travel(total);
+		double fore = scanFor(side, 20, 12, 50);
+		double diff = back - fore;
+		double degree = Math.toDegrees(Math.atan(diff / total));
+		pilot.rotate(degree);
 	}
 
 	@Override
@@ -318,6 +371,7 @@ public class Scout implements Robot {
 		arena.setAgtPos(pos);
 		arena.setAgtDir(dir);
 		determined = true;
+		obsData = null;
 	}
 
 	@Override
@@ -336,7 +390,8 @@ public class Scout implements Robot {
 		} else {
 			obsData[3] = false;
 		}
-		drawNeighbor(obsData);
+		this.obsData = obsData;
+		drawNeighbor();
 		return obsData;
 	}
 
@@ -365,9 +420,26 @@ public class Scout implements Robot {
 
 	@Override
 	public void moveTo(char side) {
+		// calibrate
 		switch (side) {
 		case 'L':
-			pilot.travel(-1.5);
+			if ((!determined && obsData[1]) || (determined && arena.isOccupied('R'))) {
+				adjustOrientation('R');
+				adjustPadding('R');
+			}
+			break;
+		case 'R':
+			if ((!determined && obsData[0]) || (determined && arena.isOccupied('L'))) {
+				adjustOrientation('L');
+				adjustPadding('L');
+			}
+			break;
+		default:
+			break;
+		}
+		// rotate
+		switch (side) {
+		case 'L':
 			pilot.rotate(-90);
 			if (determined) {
 				int[] dir = arena.getAgtDir();
@@ -375,18 +447,33 @@ public class Scout implements Robot {
 			}
 			break;
 		case 'R':
-			pilot.travel(-1.5);
 			pilot.rotate(90);
 			if (determined) {
 				int[] dir = arena.getAgtDir();
 				arena.setAgtDir(new int[] { -dir[1], dir[0] });
 			}
 			break;
-		case 'F':
-		case 'B':
 		default:
 			break;
 		}
+		// calibrate
+		switch (side) {
+		case 'L':
+			if ((!determined && obsData[2]) || (determined && arena.isOccupied('R'))) {
+				adjustOrientation('R');
+				adjustPadding('R');
+			}
+			break;
+		case 'R':
+			if ((!determined && obsData[2]) || (determined && arena.isOccupied('L'))) {
+				adjustOrientation('L');
+				adjustPadding('L');
+			}
+			break;
+		default:
+			break;
+		}
+		// travel
 		switch (side) {
 		case 'L':
 		case 'R':
@@ -403,11 +490,11 @@ public class Scout implements Robot {
 
 	@Override
 	public void moveTo(int[] target) {
-		int[] pos = arena.getAgtPos();
-		int[] dir = arena.getAgtDir();
-		if (Arrays.equals(pos, Arena.UNKNOWN) || Arrays.equals(dir, Arena.UNKNOWN)) {
+		if (!determined) {
 			return;
 		}
+		int[] pos = arena.getAgtPos();
+		int[] dir = arena.getAgtDir();
 		int[] to = new int[] { target[0] - pos[0], target[1] - pos[1] };
 		if (Arrays.equals(dir, to)) {
 			moveTo('F');
@@ -429,6 +516,7 @@ public class Scout implements Robot {
 		}
 	}
 
+	// test method
 	public void testColor() {
 		DecimalFormat df = new DecimalFormat("####0.000");
 		lcd.setFont(Font.getSmallFont());
@@ -444,6 +532,7 @@ public class Scout implements Robot {
 		}
 	}
 
+	// test method
 	public void testDistance() {
 		DecimalFormat df = new DecimalFormat("####0.000");
 		lcd.setFont(Font.getSmallFont());
