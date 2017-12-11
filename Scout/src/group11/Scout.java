@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 
 import lejos.hardware.Button;
+import lejos.hardware.Sound;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.Font;
 import lejos.hardware.lcd.GraphicsLCD;
@@ -306,7 +307,7 @@ public class Scout implements Robot {
 		}
 		// logistic function
 		// y = c / (1 + e^(-k * (x + b))) + d
-		double [] args = new double[] { 0.15, 0.8, 0.16 };
+		double [] args = new double[] { 0.04, 0.82, 0.15 };
 		for (int i = 0; i < Math.min(args.length, params.length); i++) {
 			args[i] = params[i];
 		}
@@ -330,15 +331,30 @@ public class Scout implements Robot {
 	 *            the side obstacle locates, in ('L', 'R')
 	 */
 	public void adjustPadding(char side) {
-		final double len = 10;
-		final double gap = 8; // TODO test in real robot
+		if (!determined) {
+			return;
+		}
+		final double len = 7;
+		double gap = 12.5; // TODO test in real robot
+		if (arena.getAgtDir()[0] == 0) { // N, S
+			gap = 11.2;
+		} else if (arena.getAgtDir()[1] == 0) { // W, E
+			gap = 14.3;
+		}
 		double data = scanFor(side, 20, 12, 50);
-		double diff = gap - data;
+		double diff = side == 'L' ? gap - data : data - gap;
 		double degree = Math.toDegrees(Math.atan(diff / len));
-		pilot.rotate(degree);
-		pilot.travel(Math.sqrt(diff * diff + len * len));
-		pilot.rotate(-degree);
-		pilot.travel(-len);
+		if (arena.isOccupied('F')) {
+			pilot.rotate(-degree);
+			pilot.travel(-Math.sqrt(diff * diff + len * len));
+			pilot.rotate(degree);
+			pilot.travel(len);
+		} else {
+			pilot.rotate(degree);
+			pilot.travel(Math.sqrt(diff * diff + len * len));
+			pilot.rotate(-degree);
+			pilot.travel(-len);
+		}
 	}
 
 	/**
@@ -348,14 +364,18 @@ public class Scout implements Robot {
 	 *            the side obstacle locates, in ('L', 'R')
 	 */
 	public void adjustOrientation(char side) {
-		final double backward = 3; // TODO test
-		final double forward = 5;
+		if (!determined) {
+			return;
+		}
+		final double backward = arena.isOccupied('F') ? 6 : 0; // TODO test
+		final double forward = arena.isOccupied('F') ? 0 : 6;
 		final double total = backward + forward;
 		pilot.travel(-backward);
 		double back = scanFor(side, 20, 12, 50);
 		pilot.travel(total);
 		double fore = scanFor(side, 20, 12, 50);
-		double diff = back - fore;
+		pilot.travel(-forward);
+		double diff = side == 'L' ? back - fore : fore - back;
 		double degree = Math.toDegrees(Math.atan(diff / total));
 		pilot.rotate(degree);
 	}
@@ -395,20 +415,12 @@ public class Scout implements Robot {
 		return obsData;
 	}
 
-	/*
-	 * Tested RGB data
-	 * R 0.275, 0.049, 0.032
-	 * G 0.052, 0.108, 0.055
-	 * B 0.036, 0.124, 0.216
-	 * W 0.276, 0.226, 0.237
-	 * B 0.024, 0.026, 0.024
-	 */
 	@Override
 	public int detectVictim() {
 		float[] colorData = detectRGB(9, 5, 20);
 		if (colorData[0] > 0.2 && colorData[1] > 0.2 && colorData[2] > 0.2) {
 			return Arena.CLEAN;
-		} else if (colorData[0] > 0.2 && colorData[1] < 0.1 && colorData[2] < 0.1) {
+		} else if (colorData[0] > 0.15 && colorData[1] < 0.1 && colorData[2] < 0.1) {
 			return Arena.VIC_CRI;
 		} else if (colorData[0] < 0.1 && colorData[1] > 0.1 && colorData[2] > 0.2) {
 			return Arena.VIC_SER;
@@ -423,14 +435,14 @@ public class Scout implements Robot {
 		// calibrate
 		switch (side) {
 		case 'L':
-			if ((!determined && obsData[1]) || (determined && arena.isOccupied('R'))) {
-				adjustOrientation('R');
+			if (determined && arena.isOccupied('R')) {
+				//adjustOrientation('R');
 				adjustPadding('R');
 			}
 			break;
 		case 'R':
-			if ((!determined && obsData[0]) || (determined && arena.isOccupied('L'))) {
-				adjustOrientation('L');
+			if (determined && arena.isOccupied('L')) {
+				//adjustOrientation('L');
 				adjustPadding('L');
 			}
 			break;
@@ -440,6 +452,7 @@ public class Scout implements Robot {
 		// rotate
 		switch (side) {
 		case 'L':
+			pilot.travel(-2);
 			pilot.rotate(-90);
 			if (determined) {
 				int[] dir = arena.getAgtDir();
@@ -447,27 +460,11 @@ public class Scout implements Robot {
 			}
 			break;
 		case 'R':
+			pilot.travel(-2);
 			pilot.rotate(90);
 			if (determined) {
 				int[] dir = arena.getAgtDir();
 				arena.setAgtDir(new int[] { -dir[1], dir[0] });
-			}
-			break;
-		default:
-			break;
-		}
-		// calibrate
-		switch (side) {
-		case 'L':
-			if ((!determined && obsData[2]) || (determined && arena.isOccupied('R'))) {
-				adjustOrientation('R');
-				adjustPadding('R');
-			}
-			break;
-		case 'R':
-			if ((!determined && obsData[2]) || (determined && arena.isOccupied('L'))) {
-				adjustOrientation('L');
-				adjustPadding('L');
 			}
 			break;
 		default:
@@ -516,6 +513,24 @@ public class Scout implements Robot {
 		}
 	}
 
+	@Override
+	public void complete() {
+		Sound.beepSequence();
+		Sound.beepSequenceUp();
+	}
+
+	// test method
+	public void testMove() {
+		pilot.travel(30);
+		pilot.rotate(90);
+		pilot.travel(30);
+		pilot.rotate(90);
+		pilot.travel(30);
+		pilot.rotate(90);
+		pilot.travel(30);
+		pilot.rotate(90);
+	}
+
 	// test method
 	public void testColor() {
 		DecimalFormat df = new DecimalFormat("####0.000");
@@ -545,19 +560,38 @@ public class Scout implements Robot {
 		}
 	}
 
+	// test method
+	public static void testLogisticFunc(double distance, double... params) {
+		// logistic function
+		// y = c / (1 + e^(-k * (x + b))) + d
+		double [] args = new double[] { 0.15, 0.8, 0.14 };
+		for (int i = 0; i < Math.min(args.length, params.length); i++) {
+			args[i] = params[i];
+		}
+		double b = -0.25 * (Arena.UNIT_DEPTH + Arena.UNIT_WIDTH);
+		double c = args[1] * Arena.UNIT_DEPTH - args[0] * Arena.UNIT_WIDTH;
+		double d = args[0] * Arena.UNIT_WIDTH;
+		double k = args[2];
+		double next = distance + b;
+		next *= -k;
+		next = Math.pow(Math.E, next);
+		next += 1;
+		next = c / next;
+		next += d;
+		System.out.println(next);
+	}
+
 	public static void main(String[] args) {
 		Scout scout = new Scout();
 		scout.lcd.drawString("Press any button to start", 0, 0, 0);
 		Button.waitForAnyPress();
-		//scout.lcd.clear();
-		//scout.testColor();
+		scout.lcd.clear();
 		scout.lcd.drawString("Waiting for PC connecting...", 0, 0, 0);
 		RemotePC remote = new RemotePC(scout, 10000);
 		scout.lcd.clear();
 		try {
 			remote.listen();
 		} catch (EOFException eofe) {
-			System.out.println("Complete.");
 			remote.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();

@@ -40,7 +40,7 @@ public class RescueEnv extends Environment {
 		model.setView(view);
 		initRemain();
 
-		robot = new RemoteRobot("127.0.0.1", 10000); // TODO
+		robot = new RemoteRobot("172.20.1.132", 10000); // TODO
 	}
 
 	@Override
@@ -118,6 +118,7 @@ public class RescueEnv extends Environment {
 			case "localize": localize(action); break;
 			case "determine": determine(action); break;
 			case "find_path": findPath(action); break;
+			case "complete": complete(action); break;
 			// actions of scout
 			case "detect": detect(action); break;
 			case "move": move(action); break;
@@ -234,6 +235,11 @@ public class RescueEnv extends Environment {
 		}
 		ListTerm lt = ASSyntax.createList(path);
 		addPercept(DOCTOR, ASSyntax.createLiteral("total_path", lt));
+	}
+
+	// mission completes
+	private void complete(Structure action) {
+		robot.complete();
 	}
 
 	// detect obstacle and victim data from robot

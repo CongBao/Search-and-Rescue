@@ -95,12 +95,14 @@ vic_rescued(0).
 // If the remaining path is empty, stop
 // (Path)
 +!next(P)[source(self)] :  .empty(P)
-                        <- .print("Done.").
+                        <- complete;
+                           .print("Done.").
 
 // If all victims are rescued, stop
 // (Path)
 +!next(P)[source(self)] :  vic_rescued(N) & N >= 3
-                        <- .print("Done.").
+                        <- complete;
+                           .print("Done.").
 
 // If the remaining path is not empty, find and notify scout the next cell to go
 // (Path)

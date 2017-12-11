@@ -225,6 +225,11 @@ public class Emulator implements Robot {
 	}
 
 	@Override
+	public void complete() {
+		System.out.println("Complete.");
+	}
+
+	@Override
 	public String toString() {
 		return "[Emulator Info] Pos: (" + pos[0] + ", " + pos[1] + "), Dir: (" + dir[0] + ", " + dir[1] + ")";
 	}
@@ -236,7 +241,6 @@ public class Emulator implements Robot {
 		try {
 			remotePC.listen();
 		} catch (EOFException eofe) {
-			System.out.println("Complete.");
 			remotePC.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();

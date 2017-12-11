@@ -55,4 +55,9 @@ public interface Robot {
 	 */
 	void moveTo(int[] pos);
 
+	/**
+	 * The mission completes.
+	 */
+	void complete();
+
 }

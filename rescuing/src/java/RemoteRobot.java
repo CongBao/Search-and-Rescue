@@ -145,4 +145,13 @@ public class RemoteRobot implements Robot {
 		}
 	}
 
+	@Override
+	public void complete() {
+		try {
+			invoke("complete");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 }

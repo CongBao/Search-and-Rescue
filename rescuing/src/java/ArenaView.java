@@ -16,7 +16,7 @@ public class ArenaView extends GridWorldView {
 	int[] heading; // used to draw robot's heading
 
 	public ArenaView(ArenaModel model) {
-		super(model, "Arena Model", 700);
+		super(model, "Arena Model", 750);
 		setVisible(true);
 		repaint();
 	}

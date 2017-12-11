@@ -55,4 +55,9 @@ public interface Robot {
 	 */
 	void moveTo(Location loc);
 
+	/**
+	 * The mission completes.
+	 */
+	void complete();
+
 }

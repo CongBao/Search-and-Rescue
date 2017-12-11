@@ -64,6 +64,9 @@ public class RemotePC {
 				case "moveToLoc":
 					result = invokeMoveToLoc(getParams(request)[0]);
 					break;
+				case "complete":
+					result = invokeComplete();
+					break;
 				default:
 					break;
 				}
@@ -139,6 +142,11 @@ public class RemotePC {
 		String[] axis = param.split(",");
 		int[] target = new int[] { Integer.parseInt(axis[0]), Integer.parseInt(axis[1]) };
 		robot.moveTo(target);
+		return "Done";
+	}
+
+	private String invokeComplete() {
+		robot.complete();
 		return "Done";
 	}
 

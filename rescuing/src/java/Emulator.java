@@ -234,6 +234,11 @@ public class Emulator implements Robot {
 		}
 	}
 
+	@Override
+	public void complete() {
+		System.out.println("Complete.");
+	}
+
 	public long getMoveDelay() {
 		return moveDelay;
 	}
