@@ -6,6 +6,7 @@
 ## TODO (06 Dec):
 1. Jason:
     - [X] Path finding methods didn't invoked on real robot.
+    - [X] Optimize localization algorithm.
 2. LeJOS:
     - [X] Test localization on robot.
 3. Communication:

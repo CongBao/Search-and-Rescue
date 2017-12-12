@@ -117,6 +117,7 @@ public class RescueEnv extends Environment {
 			// actions of doctor
 			case "localize": localize(action); break;
 			case "determine": determine(action); break;
+			case "choose": choose(action); break;
 			case "find_path": findPath(action); break;
 			case "complete": complete(action); break;
 			// actions of scout
@@ -221,6 +222,39 @@ public class RescueEnv extends Environment {
 		robot.updateRobotInfo(new Location(x, y), dir);
 		putVictims();
 		addPercept(DOCTOR, ASSyntax.createLiteral("pos", action.getTerm(0), action.getTerm(1)));
+	}
+
+	// choose a side to further explore
+	private void choose(Structure action) throws NoValueException {
+		boolean[] obsData = new boolean[4];
+		for (int i = 0; i < 4; i++) {
+			obsData[i] = 1 == (int) ((NumberTerm) action.getTerm(i)).solve();
+		}
+		Map<Location, List<int[]>> remain = getRemain((ListTerm) action.getTerm(4));
+		char side = model.chooseSide(remain, obsData);
+		removePerceptsByUnif(DOCTOR, Literal.parseLiteral("choose(_, _)"));
+		Term sideTerm = null;
+		try {
+			switch (side) {
+			case 'L':
+				sideTerm = ASSyntax.parseTerm("left");
+				break;
+			case 'R':
+				sideTerm = ASSyntax.parseTerm("right");
+				break;
+			case 'F':
+				sideTerm = ASSyntax.parseTerm("front");
+				break;
+			case 'B':
+				sideTerm = ASSyntax.parseTerm("back");
+				break;
+			default:
+				break;
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		addPercept(DOCTOR, ASSyntax.createLiteral("choose", sideTerm, action.getTerm(4)));
 	}
 
 	// find a total path passing all remaining possible victims

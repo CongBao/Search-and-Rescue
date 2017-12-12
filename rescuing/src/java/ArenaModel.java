@@ -1,6 +1,5 @@
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -93,6 +92,15 @@ public class ArenaModel extends GridWorldModel {
 		return -1;
 	}
 
+	public boolean[] getSurrounds(Location pos, int[] dir) {
+		boolean[] surrounds = new boolean[4];
+		surrounds[0] = !isFreeOfObstacle(pos.x + dir[1], pos.y - dir[0]);
+		surrounds[1] = !isFreeOfObstacle(pos.x - dir[1], pos.y + dir[0]);
+		surrounds[2] = !isFreeOfObstacle(pos.x + dir[0], pos.y + dir[1]);
+		surrounds[3] = !isFreeOfObstacle(pos.x - dir[0], pos.y - dir[1]);
+		return surrounds;
+	}
+
 	/**
 	 * Reduce the number of possible cells that the robot located in.
 	 *
@@ -112,12 +120,7 @@ public class ArenaModel extends GridWorldModel {
 		for (Location pos : remain.keySet()) {
 			List<int[]> posDir = new LinkedList<>();
 			for (int[] dir : remain.get(pos)) {
-				boolean[] real = new boolean[4];
-				real[0] = !isFreeOfObstacle(pos.x + dir[1], pos.y - dir[0]);
-				real[1] = !isFreeOfObstacle(pos.x - dir[1], pos.y + dir[0]);
-				real[2] = !isFreeOfObstacle(pos.x + dir[0], pos.y + dir[1]);
-				real[3] = !isFreeOfObstacle(pos.x - dir[0], pos.y - dir[1]);
-				if (Arrays.equals(obsData, real) && (getObject(pos) == vicData || CLEAN == vicData)) {
+				if (Arrays.equals(obsData, getSurrounds(pos, dir)) && (getObject(pos) == vicData || CLEAN == vicData)) {
 					if (hasObject(VIC_POS, pos)) {
 						checkAndRescue(VIC_POS);
 					}
@@ -133,6 +136,77 @@ public class ArenaModel extends GridWorldModel {
 			add(POS_LOC, pos);
 		}
 		return possible;
+	}
+
+	public char chooseSide(Map<Location, List<int[]>> remain, boolean[] obsData) {
+		@SuppressWarnings("unchecked")
+		List<boolean[]>[] predictObs = new List[3];
+		for (int i = 0; i < 3; i++) {
+			predictObs[i] = obsData[i] ? null : new LinkedList<>();
+		}
+		int[] vicNum = new int[3];
+		for (Location pos : remain.keySet()) {
+			for (int[] dir : remain.get(pos)) {
+				if (!obsData[0]) { // left
+					int[] turned = new int[] { dir[1], -dir[0] };
+					Location moved = new Location(pos.x + turned[0], pos.y + turned[1]);
+					predictObs[0].add(getSurrounds(moved, turned));
+					if (hasObject(VIC_POS, moved)) {
+						vicNum[0]++;
+					}
+				}
+				if (!obsData[1]) { // right
+					int[] turned = new int[] { -dir[1], dir[0] };
+					Location moved = new Location(pos.x + turned[0], pos.y + turned[1]);
+					predictObs[1].add(getSurrounds(moved, turned));
+					if (hasObject(VIC_POS, moved)) {
+						vicNum[1]++;
+					}
+				}
+				if (!obsData[2]) { // front
+					int[] turned = new int[] { dir[0], dir[1] };
+					Location moved = new Location(pos.x + turned[0], pos.y + turned[1]);
+					predictObs[2].add(getSurrounds(moved, turned));
+					if (hasObject(VIC_POS, moved)) {
+						vicNum[2]++;
+					}
+				}
+			}
+		}
+		double[] scores = new double[3];
+		for (int i = 0; i < 3; i++) {
+			if (obsData[i]) {
+				scores[i] = Double.NEGATIVE_INFINITY;
+				continue;
+			}
+			List<boolean[]> distinct = new LinkedList<>();
+			for (boolean[] predict : predictObs[i]) {
+				boolean duplicate = false;
+				for (boolean[] data : distinct) {
+					if (Arrays.equals(predict, data)) {
+						duplicate = true;
+						break;
+					}
+				}
+				if (!duplicate) {
+					distinct.add(predict);
+				}
+			}
+			scores[i] += distinct.size() + vicNum[i] * 0.5;
+		}
+		System.out.println("SCORES: [" +scores[0] + ", " + scores[1] + ", " + scores[2] + "]");
+		double[] sort = Arrays.copyOf(scores, scores.length);
+		Arrays.sort(sort);
+		double max = sort[scores.length - 1];
+		if (scores[2] == max) {
+			return 'F';
+		} else if (scores[0] == max) {
+			return 'L';
+		} else if (scores[1] == max) {
+			return 'R';
+		} else {
+			return 'B';
+		}
 	}
 
 	/**
@@ -184,42 +258,6 @@ public class ArenaModel extends GridWorldModel {
 	 */
 	public List<Location> findOptimalPath() {
 		return new MultiAStar(this).findPath(getAgPos(SCOUT), possibleVictims);
-		/*AStar aStar = new AStar(this);
-		List<Location> optimalPath = new LinkedList<>();
-		List<Location> remain = new LinkedList<>(possibleVictims);
-		Location start = getAgPos(SCOUT);
-		while (!remain.isEmpty()) {
-			Location nearest = findNearestTarget(start, remain);
-			optimalPath.addAll(aStar.findPath(start, nearest));
-			start = nearest;
-			remain.remove(nearest);
-		}
-		return optimalPath;*/
-	}
-
-	/**
-	 * Use A* algorithm to find a nearest neighbor in a list of locations
-	 *
-	 * @param start
-	 *            the start point
-	 * @param neighbors
-	 *            a list of neighbor locations
-	 * @return the nearest location in list
-	 */
-	public Location findNearestTarget(final Location start, final List<Location> neighbors) {
-		AStar aStar = new AStar(this);
-		Map<Location, Integer> dis = new HashMap<>();
-		for (Location loc : neighbors) {
-			dis.put(loc, aStar.findPath(start, loc).size());
-		}
-		List<Map.Entry<Location, Integer>> disList = new LinkedList<>(dis.entrySet());
-		Collections.sort(disList, new Comparator<Map.Entry<Location, Integer>>() {
-			@Override
-			public int compare(Map.Entry<Location, Integer> o1, Map.Entry<Location, Integer> o2) {
-				return o1.getValue().compareTo(o2.getValue());
-			}
-		});
-		return disList.get(0).getKey();
 	}
 
 	/**

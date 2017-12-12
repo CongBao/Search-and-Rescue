@@ -25,7 +25,7 @@ vic_rescued(0).
                                         if (V > 0) {
                                             .print("Please check the victim at your place.");
                                             .send(scout, achieve, check(V));
-                                            .wait(500);
+                                            .wait(1000);
                                         };
                                         localize(L, R, F, B, V, M); // -> [doctor] +remain([...])
                                         .wait(1000);
@@ -39,24 +39,15 @@ vic_rescued(0).
                                           .print("Pos: (", X, ",", Y, "), Dir: (", D1, ",", D2, ")");
                                           determine(X, Y, D1, D2). // -> [doctor] +pos(X, Y)
 
-// If there are more than one possible cells in list, choose one side in the priority of front > left > right,
-// and ask scout to explore further in this side
+// If there are more than one possible cells in list, choose one side to explore
 // (Left, Right, Front, reMain)
 +!explore(L, R, F, B, M)[source(self)] :  .length(M, Len) & Len > 1
-                                       <- if (F == 0) {
-                                              .print("Please try to explore your front cell.");
-                                              .send(scout, achieve, explore(front, M));
-                                          } else {
-                                              if (L == 0) {
-                                                  .print("Please try to explore your left cell.");
-                                                  .send(scout, achieve, explore(left, M));
-                                              } else {
-                                                  if (R == 0) {
-                                                      .print("Please try to explore your right cell.");
-                                                      .send(scout, achieve, explore(right, M));
-                                                  };
-                                              };
-                                          }.
+                                       <- choose(L, R, F, B, M). // -> [doctor] +choose(S, M)
+
+// Once a side is chosen, ask scout to further explore
+// (Side, reMain)
++choose(S, M)[source(percept)] :  true
+                               <- .send(scout, achieve, explore(S, M)).
 
 /* Path finding */
 
