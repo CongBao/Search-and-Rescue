@@ -29,7 +29,7 @@
     - [X] Stop the scout after all victims detected.
     - [ ] Add counts of arrived cells.
     - [ ] Potential problem that it may travel in a cycle during localization.
-    - [ ] Pathfinding algorithm is not optimal.
+    - [X] Pathfinding algorithm is not optimal.
     - [X] Add more kinds of victims.
     - [X] Some issues in visibility of possible location and heading.
     - [X] There's a small possibility that the localization algorithm will end with 0.

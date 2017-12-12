@@ -1,6 +1,6 @@
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import jason.environment.grid.GridWorldModel;
@@ -36,8 +36,8 @@ public class AStar {
 	 *         (expect the start point)
 	 */
 	public List<Location> findPath(Location from, Location to) {
-		List<Node> openList = new ArrayList<>();
-		List<Node> closeList = new ArrayList<>();
+		List<Node> openList = new LinkedList<>();
+		List<Node> closeList = new LinkedList<>();
 		Node start = new Node(from);
 		Node end = new Node(to);
 		Node point = start;
@@ -76,13 +76,13 @@ public class AStar {
 				break;
 			}
 			if (openList.isEmpty()) {
-				return new ArrayList<>();
+				return new LinkedList<>();
 			}
 			point = Collections.min(openList);
 			openList.remove(point);
 			closeList.add(point);
 		}
-		List<Location> path = new ArrayList<>();
+		List<Location> path = new LinkedList<>();
 		point = end;
 		while (point.parent != null) {
 			path.add(point.toLocation());
@@ -159,7 +159,7 @@ public class AStar {
 		 * @return a list of surrounding {@link Node}
 		 */
 		public List<Node> getSurrounds() {
-			List<Node> surrounds = new ArrayList<>(4);
+			List<Node> surrounds = new LinkedList<>();
 			surrounds.add(new Node(x, y + 1)); // N
 			surrounds.add(new Node(x, y - 1)); // S
 			surrounds.add(new Node(x - 1, y)); // W

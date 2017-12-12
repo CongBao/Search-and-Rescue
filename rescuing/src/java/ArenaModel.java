@@ -183,7 +183,8 @@ public class ArenaModel extends GridWorldModel {
 	 * @return a list of locations the robot should go
 	 */
 	public List<Location> findOptimalPath() {
-		AStar aStar = new AStar(this);
+		return new MultiAStar(this).findPath(getAgPos(SCOUT), possibleVictims);
+		/*AStar aStar = new AStar(this);
 		List<Location> optimalPath = new LinkedList<>();
 		List<Location> remain = new LinkedList<>(possibleVictims);
 		Location start = getAgPos(SCOUT);
@@ -193,7 +194,7 @@ public class ArenaModel extends GridWorldModel {
 			start = nearest;
 			remain.remove(nearest);
 		}
-		return optimalPath;
+		return optimalPath;*/
 	}
 
 	/**
