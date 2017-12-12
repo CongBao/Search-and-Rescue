@@ -219,6 +219,7 @@ public class RescueEnv extends Environment {
 		model.remove(ArenaModel.POS_LOC, x, y);
 		model.removeCheckedVic(pos, dir);
 		model.addVisitedCount(pos, dir);
+		model.count[pos[0]][pos[1]]++;
 		robot.updateRobotInfo(new Location(x, y), dir);
 		putVictims();
 		addPercept(DOCTOR, ASSyntax.createLiteral("pos", action.getTerm(0), action.getTerm(1)));
@@ -311,7 +312,7 @@ public class RescueEnv extends Environment {
 		for (Map<Integer, List<Character>> record : model.encounters) {
 			record.values().iterator().next().add(side);
 		}
-		model.visited.add(side); // TODO
+		model.visited.add(side);
 		Map<Location, List<int[]>> remain = getRemain((ListTerm) action.getTerm(1));
 		remain = model.updateRemain(remain, side);
 		putRemain(remain);

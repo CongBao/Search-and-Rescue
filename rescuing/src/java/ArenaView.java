@@ -1,4 +1,6 @@
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Polygon;
 import java.util.Arrays;
@@ -17,6 +19,7 @@ public class ArenaView extends GridWorldView {
 
 	public ArenaView(ArenaModel model) {
 		super(model, "Arena Model", 750);
+		defaultFont = new Font("Consolas", Font.BOLD | Font.ITALIC, 20);
 		setVisible(true);
 		repaint();
 	}
@@ -55,6 +58,7 @@ public class ArenaView extends GridWorldView {
 		g.fillPolygon(p);
 		g.setColor(Color.black);
 		g.drawPolygon(p);
+		drawCount(g);
 	}
 
 	public void drawVic(Graphics g, int x, int y, Color c) {
@@ -72,6 +76,22 @@ public class ArenaView extends GridWorldView {
 				g.fillPolygon(p);
 				g.setColor(Color.black);
 				g.drawPolygon(p);
+			}
+		}
+	}
+
+	public void drawCount(Graphics g) {
+		int[][] count = ((ArenaModel) model).count;
+		for (int i = 0; i < count.length; i++) {
+			for (int j = 0; j < count[i].length; j++) {
+				if (count[i][j] > 0) {
+					String s = String.valueOf(count[i][j]);
+					g.setFont(defaultFont);
+					FontMetrics metrics = g.getFontMetrics();
+					int width = metrics.stringWidth(s);
+					int height = metrics.getHeight();
+					g.drawString(s, i * cellSizeW + width, j * cellSizeH + height);
+				}
 			}
 		}
 	}

@@ -335,7 +335,7 @@ public class Scout implements Robot {
 			return;
 		}
 		final double len = 7;
-		double gap = 12.5; // TODO test in real robot
+		double gap = 12.5;
 		if (arena.getAgtDir()[0] == 0) { // N, S
 			gap = 11.2;
 		} else if (arena.getAgtDir()[1] == 0) { // W, E
@@ -367,7 +367,7 @@ public class Scout implements Robot {
 		if (!determined) {
 			return;
 		}
-		final double backward = arena.isOccupied('F') ? 6 : 0; // TODO test
+		final double backward = arena.isOccupied('F') ? 6 : 0;
 		final double forward = arena.isOccupied('F') ? 0 : 6;
 		final double total = backward + forward;
 		pilot.travel(-backward);

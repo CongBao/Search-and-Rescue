@@ -24,7 +24,7 @@ public class ArenaModel extends GridWorldModel {
 
 	int[][] count;
 	List<Location> possibleVictims;
-	List<Character> visited; // TODO
+	List<Character> visited;
 	List<Map<Integer, List<Character>>> encounters;
 
 	public ArenaModel() {
@@ -92,6 +92,15 @@ public class ArenaModel extends GridWorldModel {
 		return -1;
 	}
 
+	/**
+	 * Get surrounding obstacle data in the map.
+	 *
+	 * @param pos
+	 *            the position
+	 * @param dir
+	 *            the direction
+	 * @return obstacle data in [left, right, front, back]
+	 */
 	public boolean[] getSurrounds(Location pos, int[] dir) {
 		boolean[] surrounds = new boolean[4];
 		surrounds[0] = !isFreeOfObstacle(pos.x + dir[1], pos.y - dir[0]);
@@ -107,7 +116,7 @@ public class ArenaModel extends GridWorldModel {
 	 * @param remain
 	 *            the remaining possible cells with headings
 	 * @param obsData
-	 *            data of obstacles, in [left, right, front]
+	 *            data of obstacles, in [left, right, front, back]
 	 * @param vicData
 	 *            data of victim
 	 * @return a new map of remaining possible cells
@@ -138,6 +147,16 @@ public class ArenaModel extends GridWorldModel {
 		return possible;
 	}
 
+	/**
+	 * Choose one side to explore, every time trying to go to the cell with highest
+	 * score.
+	 *
+	 * @param remain
+	 *            the remaining possible cells with headings
+	 * @param obsData
+	 *            data of obstacles, in [left, right, front, back]
+	 * @return the side to go, in ('L', 'R', 'F')
+	 */
 	public char chooseSide(Map<Location, List<int[]>> remain, boolean[] obsData) {
 		@SuppressWarnings("unchecked")
 		List<boolean[]>[] predictObs = new List[3];
@@ -194,7 +213,6 @@ public class ArenaModel extends GridWorldModel {
 			}
 			scores[i] += distinct.size() + vicNum[i] * 0.5;
 		}
-		System.out.println("SCORES: [" +scores[0] + ", " + scores[1] + ", " + scores[2] + "]");
 		double[] sort = Arrays.copyOf(scores, scores.length);
 		Arrays.sort(sort);
 		double max = sort[scores.length - 1];
@@ -257,6 +275,9 @@ public class ArenaModel extends GridWorldModel {
 	 * @return a list of locations the robot should go
 	 */
 	public List<Location> findOptimalPath() {
+		if (possibleVictims.isEmpty()) {
+			return new LinkedList<>();
+		}
 		return new MultiAStar(this).findPath(getAgPos(SCOUT), possibleVictims);
 	}
 
@@ -281,6 +302,7 @@ public class ArenaModel extends GridWorldModel {
 		}
 		((ArenaView) view).heading = dir;
 		setAgPos(SCOUT, loc);
+		count[loc.x][loc.y]++;
 	}
 
 	/**
@@ -353,8 +375,34 @@ public class ArenaModel extends GridWorldModel {
 		}
 	}
 
+	/**
+	 * Add counts to the cells that covered during localization.
+	 *
+	 * @param pos
+	 *            the determined position
+	 * @param dir
+	 *            the determined direction
+	 */
 	public void addVisitedCount(int[] pos, int[] dir) {
-		// TODO
+		Location nowPos = new Location(pos[0], pos[1]);
+		int[] nowDir = Arrays.copyOf(dir, dir.length);
+		Collections.reverse(visited);
+		for (char move : visited) {
+			nowPos = new Location(nowPos.x - nowDir[0], nowPos.y - nowDir[1]);
+			count[nowPos.x][nowPos.y]++;
+			switch (move) {
+			case 'L':
+				nowDir = new int[] { -nowDir[1], nowDir[0] };
+				break;
+			case 'R':
+				nowDir = new int[] { nowDir[1], -nowDir[0] };
+				break;
+			case 'F':
+				break;
+			default:
+				break;
+			}
+		}
 	}
 
 }
