@@ -181,21 +181,22 @@ public class Scout implements Robot {
 	 * @return the distance
 	 */
 	public float scanFor(char dir, int... params) {
-		int[] args = new int[] { 9, 5, 100 };
+		int[] args = new int[] { 20, 8, 50 };
 		for (int i = 0; i < Math.min(args.length, params.length); i++) {
 			args[i] = params[i];
 		}
+		final int angle = 95;
 		float dis = 0.0f;
 		switch (dir) {
 		case 'L':
-			Motor.C.rotate(90);
+			Motor.C.rotate(angle);
 			dis = scan(args[0], args[1], args[2]);
-			Motor.C.rotate(-90);
+			Motor.C.rotate(-angle);
 			break;
 		case 'R':
-			Motor.C.rotate(-90);
+			Motor.C.rotate(-angle);
 			dis = scan(args[0], args[1], args[2]);
-			Motor.C.rotate(90);
+			Motor.C.rotate(angle);
 			break;
 		case 'F':
 			dis = scan(args[0], args[1], args[2]);
@@ -307,12 +308,13 @@ public class Scout implements Robot {
 		}
 		// logistic function
 		// y = c / (1 + e^(-k * (x + b))) + d
-		double [] args = new double[] { 0.04, 0.82, 0.15 };
+		double [] args = new double[] { 0.04, 0.82, 0.15 }; // TODO (1, 2) 0.04, 0.82, 0.15 (3) 0.05, 0.8, 0.15
 		for (int i = 0; i < Math.min(args.length, params.length); i++) {
 			args[i] = params[i];
 		}
 		double b = -0.25 * (Arena.UNIT_DEPTH + Arena.UNIT_WIDTH);
-		double c = args[1] * Arena.UNIT_DEPTH - args[0] * Arena.UNIT_WIDTH;
+		double c = args[1] * Arena.UNIT_DEPTH - args[0] * Arena.UNIT_WIDTH; // TODO (2, 3)
+		//double c = args[1] * Arena.UNIT_WIDTH - args[0] * Arena.UNIT_WIDTH; // TODO (1)
 		double d = args[0] * Arena.UNIT_WIDTH;
 		double k = args[2];
 		double next = distance + b;
@@ -337,11 +339,12 @@ public class Scout implements Robot {
 		final double len = 7;
 		double gap = 12.5;
 		if (arena.getAgtDir()[0] == 0) { // N, S
-			gap = 11.2;
+			gap = 11.2; // TODO (1)10.5 (2)11.2 (3)14.5
 		} else if (arena.getAgtDir()[1] == 0) { // W, E
-			gap = 14.3;
+			gap = 14.3; // TODO (1)10.5 (2)14.3 (3)15.5
 		}
-		double data = scanFor(side, 20, 12, 50);
+		pilot.travel(-1);
+		double data = scanFor(side, 50, 10, 20);
 		double diff = side == 'L' ? gap - data : data - gap;
 		double degree = Math.toDegrees(Math.atan(diff / len));
 		if (arena.isOccupied('F')) {
@@ -371,9 +374,9 @@ public class Scout implements Robot {
 		final double forward = arena.isOccupied('F') ? 0 : 6;
 		final double total = backward + forward;
 		pilot.travel(-backward);
-		double back = scanFor(side, 20, 12, 50);
+		double back = scanFor(side, 50, 10, 20);
 		pilot.travel(total);
-		double fore = scanFor(side, 20, 12, 50);
+		double fore = scanFor(side, 50, 10, 20);
 		pilot.travel(-forward);
 		double diff = side == 'L' ? back - fore : fore - back;
 		double degree = Math.toDegrees(Math.atan(diff / total));
@@ -396,7 +399,8 @@ public class Scout implements Robot {
 
 	@Override
 	public boolean[] detectObstacle() {
-		final double threshold = 0.45 * (Arena.UNIT_DEPTH + Arena.UNIT_WIDTH);
+		final double threshold = 0.45 * (Arena.UNIT_DEPTH + Arena.UNIT_WIDTH); // TODO (2, 3)
+		//final double threshold = 0.45 * (Arena.UNIT_WIDTH + Arena.UNIT_WIDTH); // TODO (1)
 		boolean[] obsData = new boolean[4];
 		float[] disData = scanAround();
 		for (int i = 0; i < 3; i++) {
