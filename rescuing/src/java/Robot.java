@@ -1,5 +1,10 @@
 import jason.environment.grid.Location;
 
+/**
+ * The interface of all robots.
+ *
+ * @author Cong Bao
+ */
 public interface Robot {
 
 	int[] N = new int[] { 0, -1 };

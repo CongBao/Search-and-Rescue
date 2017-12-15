@@ -15,6 +15,12 @@ import lejos.robotics.geometry.Point;
 import lejos.robotics.localization.OdometryPoseProvider;
 import lejos.robotics.navigation.MovePilot;
 
+/**
+ * A class to control the robot.
+ *
+ * @author Cong Bao
+ * @author Samuel David Brundell
+ */
 public class Scout implements Robot {
 
 	private Arena arena;
@@ -175,9 +181,9 @@ public class Scout implements Robot {
 	 *            the direction to scan
 	 * @param params
 	 * 			  some optional parameters, in [total, sample, delay]:
-	 *            total - number of scans, default 9;
-	 *            sample - number of valid scans, default 5;
-	 *            delay - delay between every two scans, default 100.
+	 *            total - number of scans, default 20;
+	 *            sample - number of valid scans, default 8;
+	 *            delay - delay between every two scans, default 50.
 	 * @return the distance
 	 */
 	public float scanFor(char dir, int... params) {
@@ -276,7 +282,7 @@ public class Scout implements Robot {
 			int[] dir = arena.getAgtDir();
 			arena.setAgtPos(new int[] { pos[0] + dir[0] * (forth ? 1 : -1), pos[1] + dir[1] * (forth ? 1 : -1) });
 		}
-		travelWithBlackLine(forth);
+		travelWithBlackLine(forth, 0.04, 0.82);
 	}
 
 	/**
@@ -286,9 +292,9 @@ public class Scout implements Robot {
 	 *            whether move forth or not
 	 * @param params
 	 *            some parameters to calculate logistic function, in [min, max, gradient]:
-	 *            min - the lower bound rate of unit width of arena, default 0.15;
+	 *            min - the lower bound rate of unit width of arena, default 0.05;
 	 *            max - the upper bound rate of unit depth of arena, default 0.8;
-	 *            gradient - the rate of slope of logistic function, default 0.16.
+	 *            gradient - the rate of slope of logistic function, default 0.15.
 	 */
 	public void travelWithBlackLine(boolean forth, double... params) {
 		Point start = pose.getPose().getLocation();
@@ -308,13 +314,12 @@ public class Scout implements Robot {
 		}
 		// logistic function
 		// y = c / (1 + e^(-k * (x + b))) + d
-		double [] args = new double[] { 0.04, 0.82, 0.15 }; // TODO (1, 2) 0.04, 0.82, 0.15 (3) 0.05, 0.8, 0.15
+		double [] args = new double[] { 0.05, 0.8, 0.15 };
 		for (int i = 0; i < Math.min(args.length, params.length); i++) {
 			args[i] = params[i];
 		}
 		double b = -0.25 * (Arena.UNIT_DEPTH + Arena.UNIT_WIDTH);
-		double c = args[1] * Arena.UNIT_DEPTH - args[0] * Arena.UNIT_WIDTH; // TODO (2, 3)
-		//double c = args[1] * Arena.UNIT_WIDTH - args[0] * Arena.UNIT_WIDTH; // TODO (1)
+		double c = args[1] * Arena.UNIT_DEPTH - args[0] * Arena.UNIT_WIDTH;
 		double d = args[0] * Arena.UNIT_WIDTH;
 		double k = args[2];
 		double next = distance + b;
@@ -339,9 +344,9 @@ public class Scout implements Robot {
 		final double len = 7;
 		double gap = 12.5;
 		if (arena.getAgtDir()[0] == 0) { // N, S
-			gap = 11.2; // TODO (1)10.5 (2)11.2 (3)14.5
+			gap = 11.2;
 		} else if (arena.getAgtDir()[1] == 0) { // W, E
-			gap = 14.3; // TODO (1)10.5 (2)14.3 (3)15.5
+			gap = 14.3;
 		}
 		pilot.travel(-1);
 		double data = scanFor(side, 50, 10, 20);
@@ -399,8 +404,7 @@ public class Scout implements Robot {
 
 	@Override
 	public boolean[] detectObstacle() {
-		final double threshold = 0.45 * (Arena.UNIT_DEPTH + Arena.UNIT_WIDTH); // TODO (2, 3)
-		//final double threshold = 0.45 * (Arena.UNIT_WIDTH + Arena.UNIT_WIDTH); // TODO (1)
+		final double threshold = 0.45 * (Arena.UNIT_DEPTH + Arena.UNIT_WIDTH);
 		boolean[] obsData = new boolean[4];
 		float[] disData = scanAround();
 		for (int i = 0; i < 3; i++) {
@@ -524,7 +528,7 @@ public class Scout implements Robot {
 	}
 
 	// test method
-	public void testMove() {
+	protected void testMove() {
 		pilot.travel(30);
 		pilot.rotate(90);
 		pilot.travel(30);
@@ -536,7 +540,7 @@ public class Scout implements Robot {
 	}
 
 	// test method
-	public void testColor() {
+	protected void testColor() {
 		DecimalFormat df = new DecimalFormat("####0.000");
 		lcd.setFont(Font.getSmallFont());
 		while (true) {
@@ -552,7 +556,7 @@ public class Scout implements Robot {
 	}
 
 	// test method
-	public void testDistance() {
+	protected void testDistance() {
 		DecimalFormat df = new DecimalFormat("####0.000");
 		lcd.setFont(Font.getSmallFont());
 		while (true) {
@@ -565,7 +569,7 @@ public class Scout implements Robot {
 	}
 
 	// test method
-	public static void testLogisticFunc(double distance, double... params) {
+	protected static void testLogisticFunc(double distance, double... params) {
 		// logistic function
 		// y = c / (1 + e^(-k * (x + b))) + d
 		double [] args = new double[] { 0.15, 0.8, 0.14 };

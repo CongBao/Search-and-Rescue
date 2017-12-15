@@ -1,5 +1,11 @@
 package group11;
 
+/**
+ * A class represents the arena.
+ *
+ * @author Cong Bao
+ *
+ */
 public class Arena {
 
 	public static final double ARENA_WIDTH = 150;

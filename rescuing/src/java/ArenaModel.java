@@ -10,8 +10,8 @@ import jason.environment.grid.Location;
 
 public class ArenaModel extends GridWorldModel {
 
-	public static final int WIDTH = 6 + 2; // TODO
-	public static final int HEIGHT = 6 + 2; // TODO
+	public static final int WIDTH = 6 + 2;
+	public static final int HEIGHT = 6 + 2;
 
 	public static final int SCOUT = 0;
 
@@ -22,9 +22,24 @@ public class ArenaModel extends GridWorldModel {
 
 	public static final int POS_LOC = 0x80;
 
+	/**
+	 * A count of times arrived at the cells.
+	 */
 	int[][] count;
+
+	/**
+	 * A list of {@link Location} of possible victims.
+	 */
 	List<Location> possibleVictims;
+
+	/**
+	 * A record of the trace during localization.
+	 */
 	List<Character> visited;
+
+	/**
+	 * A record of possible victim cells covered and the traces during localization.
+	 */
 	List<Map<Integer, List<Character>>> encounters;
 
 	public ArenaModel() {
@@ -42,18 +57,13 @@ public class ArenaModel extends GridWorldModel {
 		add(OBSTACLE, 5, 2);
 		add(OBSTACLE, 5, 5);
 		add(OBSTACLE, 6, 5);
-		/*add(OBSTACLE, 1, 3);
-		add(OBSTACLE, 2, 2);
-		add(OBSTACLE, 4, 2);
-		add(OBSTACLE, 4, 5);
-		add(OBSTACLE, 5, 5);*/
 		// possible victims
 		possibleVictims = new LinkedList<>();
 		possibleVictims.add(new Location(1, 1));
+		possibleVictims.add(new Location(2, 4));
 		possibleVictims.add(new Location(3, 3));
 		possibleVictims.add(new Location(3, 5));
-		possibleVictims.add(new Location(4, 4));
-		possibleVictims.add(new Location(5, 1));
+		possibleVictims.add(new Location(4, 1));
 		for (Location loc : possibleVictims) {
 			add(VIC_POS, loc);
 		}
@@ -88,7 +98,7 @@ public class ArenaModel extends GridWorldModel {
 	 *            x-axis of this cell
 	 * @param y
 	 *            y-axis of this cell
-	 * @return the value of this object
+	 * @return the value of this object, -1 if out of grid
 	 */
 	public int getObject(int x, int y) {
 		if (inGrid(x, y)) {
@@ -116,7 +126,7 @@ public class ArenaModel extends GridWorldModel {
 	}
 
 	/**
-	 * Reduce the number of possible cells that the robot located in.
+	 * Reduce the number of possible cells that robot located in.
 	 *
 	 * @param remain
 	 *            the remaining possible cells with headings
@@ -154,7 +164,9 @@ public class ArenaModel extends GridWorldModel {
 
 	/**
 	 * Choose one side to explore, every time trying to go to the cell with highest
-	 * score.
+	 * score. The score is calculated by predicting the value of cells if robot
+	 * decide to go to a particular side. Normally, a side with more distinct
+	 * patterns (surrounding obstacles) and possible victim earn more scores.
 	 *
 	 * @param remain
 	 *            the remaining possible cells with headings

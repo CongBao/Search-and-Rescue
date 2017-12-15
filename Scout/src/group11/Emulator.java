@@ -5,6 +5,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
+/**
+ * This {@code Emulator} is used to emulate the actions and movements of robot.
+ * So experiments can carry on even without a robot. This version of emulator is
+ * set at the robot side so it also can be used to test remote connections.
+ *
+ * @author Cong Bao
+ * @author Samuel David Brundell
+ */
 public class Emulator implements Robot {
 
 	private Random random;
@@ -26,6 +34,9 @@ public class Emulator implements Robot {
 	private boolean firstDetect = true;
 	private boolean determined = false;
 
+	/**
+	 * Construct an emulator.
+	 */
 	public Emulator() {
 		random = new Random(System.currentTimeMillis());
 		arena = new Arena();
@@ -33,6 +44,9 @@ public class Emulator implements Robot {
 		initRobot();
 	}
 
+	/**
+	 * Initialize the map.
+	 */
 	public void initMap() {
 		map = new int[Arena.WIDTH + 2][Arena.DEPTH + 2];
 		for (int i = 0; i < Arena.WIDTH + 2; i++) {
@@ -43,19 +57,22 @@ public class Emulator implements Robot {
 			map[0][i] = Arena.OBSTACLE;
 			map[Arena.WIDTH + 1][i] = Arena.OBSTACLE;
 		}
-		map[1][6] =  Arena.OBSTACLE;
-		map[2][3] =  Arena.OBSTACLE;
-		map[3][2] =  Arena.OBSTACLE;
-		map[5][2] =  Arena.OBSTACLE;
-		map[5][5] =  Arena.OBSTACLE;
-		map[6][5] =  Arena.OBSTACLE;
-		map[1][1] =  Arena.VIC_POS;
-		map[3][3] =  Arena.VIC_POS;
-		map[3][5] =  Arena.VIC_POS;
-		map[4][4] =  Arena.VIC_POS;
-		map[5][1] =  Arena.VIC_POS;
+		map[1][6] = Arena.OBSTACLE;
+		map[2][3] = Arena.OBSTACLE;
+		map[3][2] = Arena.OBSTACLE;
+		map[5][2] = Arena.OBSTACLE;
+		map[5][5] = Arena.OBSTACLE;
+		map[6][5] = Arena.OBSTACLE;
+		map[1][1] = Arena.VIC_POS;
+		map[3][3] = Arena.VIC_POS;
+		map[3][5] = Arena.VIC_POS;
+		map[4][4] = Arena.VIC_POS;
+		map[5][1] = Arena.VIC_POS;
 	}
 
+	/**
+	 * Initialize a robot with random location and heading.
+	 */
 	public void initRobot() {
 		while (pos == null) {
 			int x = random.nextInt(Arena.WIDTH) + 1;
@@ -71,18 +88,53 @@ public class Emulator implements Robot {
 		dir[1] = random.nextBoolean() ? dir[1] : -dir[1];
 	}
 
+	/**
+	 * If the given cell is free.
+	 *
+	 * @param x
+	 *            x-axis of this cell
+	 * @param y
+	 *            y-axis of this cell
+	 * @return true if there is neither obstacle nor victim
+	 */
 	public boolean isFree(int x, int y) {
 		return (map[x][y] & Arena.OBSTACLE) == 0 && (map[x][y] & Arena.VIC_POS) == 0;
 	}
 
+	/**
+	 * If the given cell is free of obstacles.
+	 *
+	 * @param x
+	 *            x-axis of this cell
+	 * @param y
+	 *            y-axis of this cell
+	 * @return true if there is no obstacle
+	 */
 	public boolean isFreeOfObstacle(int x, int y) {
 		return (map[x][y] & Arena.OBSTACLE) == 0;
 	}
 
+	/**
+	 * Test whether the given cell has the object.
+	 *
+	 * @param obj
+	 *            the object to test
+	 * @param x
+	 *            x-axis of this cell
+	 * @param y
+	 *            y-axis of this cell
+	 * @return true if the object exists in the cell
+	 */
 	public boolean hasObject(int obj, int x, int y) {
 		return (map[x][y] & obj) != 0;
 	}
 
+	/**
+	 * Emulate the delay of robot actions.
+	 *
+	 * @param action
+	 *            the name of action
+	 */
 	public void delay(String action) {
 		try {
 			switch (action) {
@@ -103,6 +155,12 @@ public class Emulator implements Robot {
 		}
 	}
 
+	/**
+	 * Travel an unit distance in the robot's current direction.
+	 *
+	 * @param forth
+	 *            whether go forth or not
+	 */
 	public void travelAnUnit(boolean forth) {
 		if (determined) {
 			int[] pos = arena.getAgtPos();

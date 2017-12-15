@@ -14,8 +14,15 @@ public class ArenaView extends GridWorldView {
 
 	private static final long serialVersionUID = 1L;
 
-	Map<Location, List<int[]>> remain; // used to draw possible location and heading
-	int[] heading; // used to draw robot's heading
+	/**
+	 * Used to draw possible location and heading.
+	 */
+	Map<Location, List<int[]>> remain;
+
+	/**
+	 * Used to draw robot's heading.
+	 */
+	int[] heading;
 
 	public ArenaView(ArenaModel model) {
 		super(model, "Arena Model", 750);
@@ -96,6 +103,7 @@ public class ArenaView extends GridWorldView {
 		}
 	}
 
+	// draw a triangle
 	private Polygon getTriangle(int[] pos, int[] dir) {
 		Polygon p = new Polygon();
 		int x = pos[0];

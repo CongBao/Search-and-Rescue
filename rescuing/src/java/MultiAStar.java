@@ -11,7 +11,6 @@ import jason.environment.grid.Location;
  * A* algorithm is used to calculate the edges.
  *
  * @author Cong Bao
- *
  */
 public class MultiAStar {
 

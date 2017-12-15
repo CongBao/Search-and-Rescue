@@ -7,6 +7,13 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * A class represents the remote computer.
+ *
+ * @author Cong Bao
+ * @author Chaoyi Han
+ * @author Samuel David Brundell
+ */
 public class RemotePC {
 
 	private Robot robot;
@@ -16,6 +23,14 @@ public class RemotePC {
 	private DataInputStream in;
 	private DataOutputStream out;
 
+	/**
+	 * Construct the remote computer with the {@link Robot} to control and the port.
+	 *
+	 * @param robot
+	 *            the {@link Robot} to control
+	 * @param port
+	 *            the port to connect
+	 */
 	public RemotePC(Robot robot, int port) {
 		this.robot = robot;
 		try {
@@ -28,6 +43,9 @@ public class RemotePC {
 		}
 	}
 
+	/**
+	 * Close the remote connection.
+	 */
 	public synchronized void close() {
 		if (socket.isClosed()) {
 			return;
@@ -39,6 +57,14 @@ public class RemotePC {
 		}
 	}
 
+	/**
+	 * Listen for remote invocations.
+	 *
+	 * @throws IOException
+	 *             exceptions in connections
+	 * @throws EOFException
+	 *             exception if remote computer close stream
+	 */
 	public void listen() throws IOException, EOFException {
 		while (socket.isConnected() && !socket.isClosed()) {
 			String request = in.readUTF();
@@ -77,6 +103,16 @@ public class RemotePC {
 		}
 	}
 
+	/**
+	 * Send the result to remote computer.
+	 *
+	 * @param method
+	 *            the name of method
+	 * @param result
+	 *            the results
+	 * @throws IOException
+	 *             exception in connection
+	 */
 	public synchronized void sendResult(String method, String result) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		sb.append(method);
@@ -86,16 +122,31 @@ public class RemotePC {
 		out.flush();
 	}
 
+	/**
+	 * Get method name from encoded string.
+	 *
+	 * @param line
+	 *            the string
+	 * @return the name of method
+	 */
 	public String getMethod(String line) {
 		String[] parts = line.split("&");
 		return parts[0];
 	}
 
+	/**
+	 * Get a list of parameters from encoded string.
+	 *
+	 * @param line
+	 *            the string
+	 * @return a array of parameters
+	 */
 	public String[] getParams(String line) {
 		String[] parts = line.split("&");
 		return parts[1].split("#");
 	}
 
+	// invoke Robot::updateArenaInfo
 	private String invokeUpdateArenaInfo(String param) {
 		int[][] map = new int[Arena.WIDTH + 2][Arena.DEPTH + 2];
 		String[] xAxis = param.split(";");
@@ -109,6 +160,7 @@ public class RemotePC {
 		return "Done";
 	}
 
+	// invoke Robot::updateRobotInfo
 	private String invokeUpdateRobotInfo(String[] params) {
 		String[] loc = params[0].split(",");
 		String[] ori = params[1].split(",");
@@ -118,6 +170,7 @@ public class RemotePC {
 		return "Done";
 	}
 
+	// invoke Robot::detectObstacle
 	private String invokeDetectObstacle() {
 		boolean[] obsData = robot.detectObstacle();
 		StringBuilder sb = new StringBuilder();
@@ -129,15 +182,18 @@ public class RemotePC {
 		return sb.toString();
 	}
 
+	// invoke Robot::detectVictim
 	private String invokeDetectVictim() {
 		return String.valueOf(robot.detectVictim());
 	}
 
+	// invoke Robot::moveTo
 	private String invokeMoveToSide(String param) {
 		robot.moveTo(param.toCharArray()[0]);
 		return "Done";
 	}
 
+	// invoke Robot::moveTo
 	private String invokeMoveToLoc(String param) {
 		String[] axis = param.split(",");
 		int[] target = new int[] { Integer.parseInt(axis[0]), Integer.parseInt(axis[1]) };
@@ -145,6 +201,7 @@ public class RemotePC {
 		return "Done";
 	}
 
+	// invoke Robot::complete
 	private String invokeComplete() {
 		robot.complete();
 		return "Done";

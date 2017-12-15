@@ -6,6 +6,13 @@ import java.util.logging.Logger;
 
 import jason.environment.grid.Location;
 
+/**
+ * A class represents the remote robot.
+ *
+ * @author Cong Bao
+ * @author Chaoyi Han
+ * @author Samuel David Brundell
+ */
 public class RemoteRobot implements Robot {
 
 	private Socket socket;
@@ -14,6 +21,14 @@ public class RemoteRobot implements Robot {
 
 	private Logger logger = Logger.getLogger("rescuing." + RescueEnv.class.getName());
 
+	/**
+	 * Construct the remote robot with host and port.
+	 *
+	 * @param host
+	 *            the IP address of remote robot
+	 * @param port
+	 *            the port of remote robot
+	 */
 	public RemoteRobot(String host, int port) {
 		try {
 			socket = new Socket(host, port);
@@ -25,6 +40,9 @@ public class RemoteRobot implements Robot {
 		}
 	}
 
+	/**
+	 * Close the remote connection.
+	 */
 	public synchronized void close() {
 		if (socket.isClosed()) {
 			return;
@@ -36,6 +54,17 @@ public class RemoteRobot implements Robot {
 		}
 	}
 
+	/**
+	 * Invoke a remote method and wait for returning.
+	 *
+	 * @param method
+	 *            the name of method
+	 * @param params
+	 *            optional parameters
+	 * @return the return value of the method
+	 * @throws IOException
+	 *             exceptions in connections
+	 */
 	public synchronized String invoke(String method, String... params) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		sb.append(method);
@@ -57,11 +86,25 @@ public class RemoteRobot implements Robot {
 		return getResult(result);
 	}
 
+	/**
+	 * Get method name from encoded string.
+	 *
+	 * @param line
+	 *            the string
+	 * @return the name of method
+	 */
 	public String getMethod(String line) {
 		String[] parts = line.split("&");
 		return parts[0];
 	}
 
+	/**
+	 * Get the return value from encoded string.
+	 *
+	 * @param line
+	 *            the string
+	 * @return the return value of method
+	 */
 	public String getResult(String line) {
 		String[] parts = line.split("&");
 		return parts[1];
